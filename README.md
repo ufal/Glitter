@@ -1,12 +1,6 @@
 # GLTR: Giant Language Model Test Room
 Detecting text that was generated from large language models (e.g. GPT-2).
 
-<a href='http://gltr.io'>
-  <img src='figs/overview.png' >
-</a>
-
-
-
 webpage: [http://gltr.io](http://gltr.io)<br>
 online-demo: [http://gltr.io/dist/index.html](http://gltr.io/dist/index.html)<br>
 paper: [https://arxiv.org/abs/1906.04043](https://arxiv.org/abs/1906.04043) 
@@ -84,10 +78,4 @@ re-compilation of front-end:
 Apache 2
 
 (c) 2019 by Hendrik Strobelt, Sebastian Gehrmann, Alexander M. Rush
-
-
-
-
-
-
 

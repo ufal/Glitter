@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
-import argparse
 import connexion
-import os
-import yaml
 from flask import send_from_directory, redirect
 from flask_cors import CORS
+from utils.arguments import get_args
 
 # from backend.Project import Project # TODO !!
 from backend import AVAILABLE_MODELS
@@ -118,27 +116,17 @@ def send_data(path):
 
 app.add_api('server.yaml')
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--model", default='gpt-2-small')
-parser.add_argument("--nodebug", default=True)
-parser.add_argument("--address",
-                    default="127.0.0.1")  # 0.0.0.0 for nonlocal use
-parser.add_argument("--port", default="5001")
-parser.add_argument("--nocache", default=False)
-parser.add_argument("--dir", type=str, default=os.path.abspath('data'))
-
-parser.add_argument("--no_cors", action='store_true')
 
 if __name__ == '__main__':
-    args = parser.parse_args()
-
+    args = get_args()
     if not args.no_cors:
         CORS(app.app, headers='Content-Type')
 
-    #app.run(port=int(args.port), debug=not args.nodebug, host=args.address)
+    #app.run(port=int(args.port), debug=args.debug, host=args.address)
+    #app.run(config=config)
     app.run(port=int(args.port), host=args.address)
 else:
-    args, _ = parser.parse_known_args()
+    args = get_args()
     # load_projects(args.dir)
     try:
         model = AVAILABLE_MODELS[args.model]

@@ -17,7 +17,7 @@ def get_args():
                         default="127.0.0.1",
                         help="Address to bind server to (0.0.0.0 for nonlocal use)")
     parser.add_argument("--port",
-                        default="5000",
+                        default="4000",
                         help="Port to launch UI and API (default:5001)")
     parser.add_argument("--nocache",
                         default=False,

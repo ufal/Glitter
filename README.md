@@ -6,7 +6,10 @@
     - [x] oddělit do vlastního souboru
     - [x] připsat help page
     - [x] nastavit rozumné defaulty
-- [ ] Vyčistit klientskou stránku
+- [ ] Klient
+    - [ ] Vyčistit klientskou stránku
+    - [ ] Opravit encodování češtiny
+    - [ ] Přidat české příklady
 - [ ] Vyrobil interface pro jazykové modely
 - [ ] Zapracovat robeczech model
 

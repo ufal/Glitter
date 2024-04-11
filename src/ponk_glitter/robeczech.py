@@ -39,7 +39,8 @@ class Robeczech(GlitterModel):
             gt.append(self.glitter_masked_token(ot, mcw))
         return gt
 
-    def generate_text(self, prompt):
-        inputs = self.tokenizer(prompt, return_tensors="pt")
-        outputs = self.model.generate(**inputs)
-        return self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+    def generate_text(self, prompt, length=20, top_k=50):
+        text = prompt
+        for i in range(length):
+            text += " " + self.pipe(text + " [MASK]", top_k=top_k)
+        return text

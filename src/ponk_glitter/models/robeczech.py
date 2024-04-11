@@ -2,7 +2,7 @@
 from random import choice
 
 from rich.progress import track
-from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging
 
 from lib.glitter_common import GlitterModel
 from lib.glitter_common import GlitteredToken, GlitteredText
@@ -13,7 +13,7 @@ logging.set_verbosity(logging.CRITICAL)
 
 class Robeczech(GlitterModel):
     SPECIAL_TOKENS = ["[SEP]", "[CLS]"]
-    MODEL_PATH = "robeczech"
+    MODEL_PATH = "models/robeczech-base"
 
     def __init__(self,
                  context_window_size: int = 5,
@@ -21,7 +21,7 @@ class Robeczech(GlitterModel):
         super().__init__("Robeczech", "cs", context_window_size=context_window_size, sample_size=top_k)
         self.context_window_size = context_window_size
         self.top_k = top_k
-        #self.model = AutoModelForCausalLM.from_pretrained(self.MODEL_PATH)
+        # self.model = AutoModelForCausalLM.from_pretrained(self.MODEL_PATH)
         self.model = AutoModelForMaskedLM.from_pretrained(self.MODEL_PATH)
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_PATH)
         self.tokenizer.add_special_tokens({"additional_special_tokens": self.SPECIAL_TOKENS})

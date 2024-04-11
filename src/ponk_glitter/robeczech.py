@@ -2,9 +2,9 @@
 
 from rich.progress import track
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, AutoModelForCausalLM
-from glitter_common import GlitteredToken, GlitteredText
-from masked_context_window import MaskedContextWindow
-from glitter_common import GlitterModel
+from lib.glitter_common import GlitteredToken, GlitteredText
+from lib.masked_context_window import MaskedContextWindow
+from lib.glitter_common import GlitterModel
 
 logging.set_verbosity(logging.CRITICAL)
 

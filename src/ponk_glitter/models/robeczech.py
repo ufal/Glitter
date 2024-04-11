@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging
 
 from lib.glitter_common import GlitterModel
 from lib.glitter_common import GlitteredToken, GlitteredText
-from lib.masked_context_window import MaskedContextWindow
+from lib.context_window import MaskedContextWindow
 
 logging.set_verbosity(logging.CRITICAL)
 
@@ -36,11 +36,12 @@ class Robeczech(GlitterModel):
 
     def glitter_text(self, text: str) -> GlitteredText:
         gt = GlitteredText(models=["Robeczech"])
-        split_text = text.split()
-        for ot, mcw in track(zip(split_text,
-                                 MaskedContextWindow(text, self.context_window_size)),
+        tokenized_text = self.tokenizer.tokenize(text)
+        for ot, mcw in track(zip(tokenized_text,
+                                 MaskedContextWindow(tokenized_text, self.context_window_size)),
                              description="Glittering...",
-                             total=len(split_text)):
+                             total=len(tokenized_text)):
+            print(ot, mcw)
             gt.append(self.glitter_masked_token(ot, mcw))
         return gt
 

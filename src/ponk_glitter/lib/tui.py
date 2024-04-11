@@ -4,7 +4,7 @@ from rich import print
 from rich.console import Console
 from rich.table import Table
 
-from glitter_common import GlitteredText, GlitteredToken
+from lib.glitter_common import GlitteredText, GlitteredToken
 
 COLOR_GRADIENT = ["cornsilk1",
                   "wheat1",
@@ -19,7 +19,7 @@ COLOR_GRADIENT = ["cornsilk1",
                   "deep_pink4"
                   "dark_red"]
 
-NOT_FOUND_COLOR = "blue1"
+NOT_FOUND_COLOR = "deep_sky_blue1"
 
 
 def color_by_prob(token: GlitteredToken) -> str:
@@ -29,11 +29,13 @@ def color_by_prob(token: GlitteredToken) -> str:
 
 def color_by_frequency(token, step=900):
     ceiling = 100
+    if token.nth == -1:
+        return f"[{NOT_FOUND_COLOR}]{token.original_token}[/]"
     for i, c in enumerate(COLOR_GRADIENT, start=1):
         if token.nth <= ceiling:
             return f"[{c}]{token.original_token}[/]"
         ceiling = i * step
-    return f"[{NOT_FOUND_COLOR}]{token.original_token}[/]"
+    return f"[{COLOR_GRADIENT[-1]}]{token.original_token}[/]"
 
 
 def print_glittered_text_by_prob(gt: GlitteredText) -> None:

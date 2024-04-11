@@ -1,10 +1,10 @@
-from typing import List, Dict, Tuple
+from typing import List
 
 
 # {'score': 0.12831833958625793, 'token': 14064, 'token_str': ' všední', 'sequence': 'Dneska je všední den.'}
 class GlitteredToken:
 
-    def __init__(self, original_token, raw_values,):
+    def __init__(self, original_token, raw_values):
         self.data = raw_values
         self.probability = 0
         self.original_token = original_token
@@ -27,7 +27,6 @@ class GlitteredText:
 
     def get_content(self) -> List[GlitteredToken]:
         return self.content
-
 
 
 class GlitterModel:

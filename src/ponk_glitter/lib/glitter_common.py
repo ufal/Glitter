@@ -49,5 +49,11 @@ class GlitterModel:
         """
         raise NotImplementedError()
 
+    def generate_text(self, prompt: str) -> str:
+        """
+        Given a prompt, generate a text.
+        """
+        raise NotImplementedError()
+
     def __str__(self):
         return f"{self.name} (context_window_size={self.context_window_size})"

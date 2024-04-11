@@ -3,3 +3,4 @@ client/src/.cache-loader
 node_modules
 venv
 .idea
+src/ponk_glitter/models

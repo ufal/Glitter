@@ -2,11 +2,11 @@
 from random import choice
 
 from rich.progress import track
-from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging
+from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType
 
+from lib.context_window import TokenizedMaskedContextWindow
 from lib.glitter_common import GlitterModel
-from lib.glitter_common import GlitteredToken, GlitteredText
-from lib.context_window import MaskedContextWindow
+from lib.glitter_common import GlitteredToken, GlitteredText, convert_tokenized_text_to_tensor
 
 logging.set_verbosity(logging.CRITICAL)
 
@@ -27,22 +27,30 @@ class Robeczech(GlitterModel):
         self.tokenizer.add_special_tokens({"additional_special_tokens": self.SPECIAL_TOKENS})
         self.pipe = pipeline('fill-mask', model=self.model, tokenizer=self.tokenizer)
 
-    def glitter_masked_token(self, original_token: str, masked_text: str, top_k: int = None) -> GlitteredToken:
+    def glitter_masked_token(self, original_token: str,
+                             masked_tokenized_text: {str: TensorType},
+                             top_k: int = None) -> GlitteredToken:
         if top_k is None:
             top_k = self.top_k
 
-        results = self.pipe(masked_text, top_k=top_k)
-        return GlitteredToken(original_token, results)
+        results = self.pipe(**masked_tokenized_text, top_k=top_k)
+        return GlitteredToken(self.tokenizer.convert_tokens_to_string(original_token), results)
 
     def glitter_text(self, text: str) -> GlitteredText:
         gt = GlitteredText(models=["Robeczech"])
-        tokenized_text = self.tokenizer.tokenize(text)
-        for ot, mcw in track(zip(tokenized_text,
-                                 MaskedContextWindow(tokenized_text, self.context_window_size)),
-                             description="Glittering...",
-                             total=len(tokenized_text)):
-            print(ot, mcw)
-            gt.append(self.glitter_masked_token(ot, mcw))
+        tokenized_text = self.tokenizer(text)
+        mask_token = self.tokenizer.convert_tokens_to_ids("[MASK]")
+
+        for ot, tmcw in track(zip(tokenized_text,
+                                  TokenizedMaskedContextWindow(
+                                      tokenized_text,
+                                      self.context_window_size,
+                                      mask_token=mask_token
+                                  )),
+                              description="Glittering...",
+                              total=len(tokenized_text)):
+            tensorified_tmcw = convert_tokenized_text_to_tensor(tmcw)
+            gt.append(self.glitter_masked_token(ot, tensorified_tmcw, top_k=self.top_k))
         return gt
 
     def generate_text(self, prompt: str, length: int = 20, top_k: int = 50) -> str:

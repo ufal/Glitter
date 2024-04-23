@@ -1,4 +1,5 @@
 from typing import List
+
 from torch import torch
 
 
@@ -59,3 +60,7 @@ class GlitterModel:
 
     def __str__(self):
         return f"{self.name} (context_window_size={self.context_window_size})"
+
+
+def convert_tokenized_text_to_tensor(tokenized_text: {str: [int]}) -> {str: torch.Tensor}:
+    return {key: torch.tensor([value]) for key, value in tokenized_text.items()}

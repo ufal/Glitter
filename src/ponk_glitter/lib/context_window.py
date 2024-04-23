@@ -47,7 +47,7 @@ class MaskedContextWindow(ContextWindow):
 
     def __next__(self):
         window = super().__next__()
-        return window + [self.mask]
+        window.append(self.mask)
 
     def __len__(self):
         return super().__len__()
@@ -57,3 +57,43 @@ class MaskedContextWindow(ContextWindow):
 
     def __repr__(self):
         return repr(self.mask)
+
+
+class TokenizedMaskedContextWindow(ContextWindow):
+
+    def __init__(self, tokenized_text: {str: [int]}, size: int, mask_token: int = 103):
+        super().__init__(tokenized_text, size)
+        self.tokenized_text: [int] = tokenized_text["input_ids"]
+        self.size = size
+        self.index: int = 0
+        self.mask_token: int = mask_token
+
+    def __create_output__(self, window: [int]):
+        return {"input_ids": window, "attention_mask": [1] * (len(window))}
+
+    def __get_window__(self, index: int):
+        if self.index < self.size:
+            window = self.tokenized_text[0: index] + [self.mask_token]
+            return self.__create_output__(window)
+        else:
+            window = self.tokenized_text[self.index - self.size: index] + [self.mask_token]
+            return self.__create_output__(window)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index >= len(self.tokenized_text):
+            raise StopIteration
+        window = self.__get_window__(self.index)
+        self.index += 1
+        return window
+
+    def __len__(self):
+        return len(self.tokenized_text)
+
+    def __getitem__(self, index):
+        return self.__get_window__(index)
+
+    def __repr__(self):
+        return repr(self.tokenized_text)

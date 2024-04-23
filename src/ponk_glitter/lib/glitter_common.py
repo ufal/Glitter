@@ -1,4 +1,5 @@
 from typing import List
+from torch import torch
 
 
 # {'score': 0.12831833958625793, 'token': 14064, 'token_str': ' všední', 'sequence': 'Dneska je všední den.'}
@@ -36,6 +37,7 @@ class GlitterModel:
         self.lang: str = lang
         self.context_window_size: int = context_window_size
         self.top_k: int = sample_size
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def glitter_masked_token(self, original_token: str, masked_context: str) -> GlitteredToken:
         """

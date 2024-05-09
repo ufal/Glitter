@@ -10,7 +10,6 @@ from lib.glitter_common import GlitteredToken, GlitteredText, convert_tokenized_
 
 logging.set_verbosity(logging.CRITICAL)
 
-
 class Robeczech(GlitterModel):
     SPECIAL_TOKENS = ["[SEP]", "[CLS]"]
     MODEL_PATH = "models/robeczech-base"
@@ -21,11 +20,12 @@ class Robeczech(GlitterModel):
         super().__init__("Robeczech", "cs", context_window_size=context_window_size, sample_size=top_k)
         self.context_window_size = context_window_size
         self.top_k = top_k
-        # self.model = AutoModelForCausalLM.from_pretrained(self.MODEL_PATH)
         self.model = AutoModelForMaskedLM.from_pretrained(self.MODEL_PATH)
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_PATH)
         self.tokenizer.add_special_tokens({"additional_special_tokens": self.SPECIAL_TOKENS})
         self.pipe = pipeline('fill-mask', model=self.model, tokenizer=self.tokenizer)
+        self.start_token = self.tokenizer.convert_tokens_to_ids("[CLS]")
+        self.end_token = self.tokenizer.convert_tokens_to_ids("[SEP]")
 
     def glitter_masked_token(self, original_token: str,
                              masked_tokenized_text: {str: TensorType},
@@ -33,8 +33,15 @@ class Robeczech(GlitterModel):
         if top_k is None:
             top_k = self.top_k
 
-        results = self.pipe(**masked_tokenized_text, top_k=top_k)
-        return GlitteredToken(self.tokenizer.convert_tokens_to_string(original_token), results)
+        results = self.model(**masked_tokenized_text).logits
+        probs = results.softmax(dim=2)
+        probs = probs[0, -1, :].tolist()
+        indexed_probs = [(index, p) for index, p in enumerate(probs)]
+        indexed_probs.sort(key=lambda x: x[1], reverse=True)
+        probs_top_k = indexed_probs[:top_k]
+        str_prob = [(self.tokenizer.convert_ids_to_tokens([index])[0], p) for index, p in probs_top_k]
+        print("Len prob", len(str_prob))
+        return GlitteredToken(self.tokenizer.convert_tokens_to_string(original_token), str_prob)
 
     def glitter_text(self, text: str) -> GlitteredText:
         gt = GlitteredText(models=["Robeczech"])

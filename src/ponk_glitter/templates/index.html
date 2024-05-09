@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>PONK: Glitter</title>
+		<link rel="stylesheet" href="/pico.css">
+	</head>
+	<body>
+		<main class="container">
+			<article>
+				<header>
+					<h1>PONK: Glitter</h1>
+				</header>
+				<section>
+					<form action="/glitter_text" method="post">
+						<input type="text" name="text_to_glitter" placeholder="Text">
+						<label for="model">Choose a language model:</label>
+						<select name="model" id="model">
+							<option value="robeczech">Robeczech</option>
+						</select>
+						<input type="submit" value="glitter">
+					</form>
+				</section>
+				<section>
+					{{ glittered_text }}
+				</section>
+			</article>
+		</main>
+	</body>
+</html>
+

@@ -9,8 +9,7 @@ app = Flask(__name__, static_folder="static")
 
 
 ######################################################################################
-# Interface
-
+# Interface + Static
 
 @app.route("/", methods=["GET"])
 def index():
@@ -24,15 +23,6 @@ def static_route(path):
 
 ######################################################################################
 # API
-
-
-"""
-{
-    "model": "robeczech",
-    "text": text,
-    "context_size": 1000
-}
-"""
 
 @app.route("/glitter_text", methods=["POST"])
 def glitter_text():

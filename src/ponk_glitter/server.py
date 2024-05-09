@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, send_from_directory, request, render_template
 from functools import cache
+from lib.arguments import get_args
 
 from models.robeczech import Robeczech
 
@@ -49,6 +50,7 @@ def server_init():
 
 
 if __name__ == "__main__":
+    args = get_args()
     server_init()
-    app.run()
+    app.run(host=args.address, port=args.port, debug=args.debug)
 

@@ -37,6 +37,10 @@ class ContextWindow:
 
 
 class MaskedContextWindow(ContextWindow):
+    """
+    This class inherits from ContextWindow. The differece is that it appends a mask token
+    to the end of the window.
+    """
 
     def __init__(self, tokenized_text: str, size: int, mask: str = "[MASK]"):
         super().__init__(tokenized_text, size)
@@ -60,11 +64,13 @@ class MaskedContextWindow(ContextWindow):
 
 
 class TokenizedMaskedContextWindow(ContextWindow):
+    """
+    """
 
-    def __init__(self, tokenized_text: {str: [int]}, size: int, mask_token: int = 103):
+    def __init__(self, tokenized_text: [int], size: int, mask_token: int = 103):
         super().__init__(tokenized_text, size)
-        self.tokenized_text: [int] = tokenized_text["input_ids"]
-        self.size = size
+        self.tokenized_text: [int] = tokenized_text
+        self.size: int = size
         self.index: int = 0
         self.mask_token: int = mask_token
 
@@ -97,3 +103,4 @@ class TokenizedMaskedContextWindow(ContextWindow):
 
     def __repr__(self):
         return repr(self.tokenized_text)
+

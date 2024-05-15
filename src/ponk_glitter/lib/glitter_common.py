@@ -1,20 +1,32 @@
 from typing import List
 
+from flask import jsonify
 from torch import torch
 
 
-# {'score': 0.12831833958625793, 'token': 14064, 'token_str': ' všední', 'sequence': 'Dneska je všední den.'}
 class GlitteredToken:
 
-    def __init__(self, original_token, raw_values):
-        self.data = raw_values
+    def __init__(self, original_token: str, raw_values):
         self.probability = 0
         self.original_token = original_token
+        self.data = raw_values
         self.nth = -1
-        for n, value in enumerate(raw_values, start=1):
-            if value["token_str"] == original_token:
-                self.probability = value["score"]
+        for n, (token, prob) in enumerate(raw_values, start=1):
+            if token.strip() == original_token.strip():
+                self.probability = prob
                 self.nth = n
+                break
+
+    def to_dict(self):
+        return {
+            "original_token": self.original_token,
+            "probability": self.probability,
+            "nth": self.nth,
+        }
+
+    def to_html(self):
+        output = f"<span class='glittered-token'>{self.original_token}</span>"
+        return output
 
 
 class GlitteredText:

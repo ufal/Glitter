@@ -54,14 +54,14 @@ def print_table_of_glittered_text(gt: GlitteredText, title="") -> None:
         table.add_row(token.original_token,
                       str(token.nth) if token.nth != -1 else "?",
                       f"{token.probability:.8f}",
-                      " ".join([token.data[i]["token_str"] for i in range(3)]))
+                      " ".join([token.data[i][0] for i in range(3)]))
     console = Console()
     console.print(table)
 
 
 def print_glittered_text(gt: GlitteredText):
     for token in gt.get_content():
-        print(color_by_frequency(token), end=" ")
+        print(color_by_frequency(token), end="")
     print("\n")
 
 

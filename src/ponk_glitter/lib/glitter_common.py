@@ -76,3 +76,17 @@ class GlitterModel:
 
 def convert_tokenized_text_to_tensor(tokenized_text: {str: [int]}) -> {str: torch.Tensor}:
     return {key: torch.tensor([value]) for key, value in tokenized_text.items()}
+
+
+def get_top_k_tokens(logits: list, tokenizer, top_k: int,) -> [(str, float)]:
+        # Get the probabilities of the last token
+        # Create list of tuples with the index(token ID) and its probability
+        indexed_probs = [(index, p) for index, p in enumerate(logits)]
+        # Sort the list by probability
+        indexed_probs.sort(key=lambda x: x[1], reverse=True)
+        # Get the top k probabilities
+        probs_top_k = indexed_probs[:top_k]
+        # Create list of tuples with the token and its probability
+        str_prob = [(tokenizer.decode([index]), p) for index, p in probs_top_k]
+        return str_prob
+

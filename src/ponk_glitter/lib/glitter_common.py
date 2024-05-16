@@ -42,6 +42,18 @@ class GlitteredText:
     def get_content(self) -> List[GlitteredToken]:
         return self.content
 
+    def to_json(self):
+        return jsonify({
+            "content": [token.to_dict() for token in self.content],
+            "used_models": self.used_models
+        })
+
+    def to_html(self) -> str:
+        output = ""
+        for token in self.content:
+            output += token.to_html()
+        return output
+
 
 class GlitterModel:
 

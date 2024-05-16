@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging,
 import torch
 
 from lib.context_window import TokenizedMaskedContextWindow
-from lib.glitter_common import GlitterModel
+from lib.glitter_common import GlitterModel, get_top_k_tokens
 from lib.glitter_common import GlitteredToken, GlitteredText, convert_tokenized_text_to_tensor
 
 logging.set_verbosity(logging.CRITICAL)
@@ -31,28 +31,20 @@ class Robeczech(GlitterModel):
 
     def glitter_masked_token(self, original_token: int,
                              masked_tokenized_text: {str: TensorType},
-                             top_k: int = None) -> GlitteredToken:
-        if top_k is None:
-            top_k = self.top_k
-
-        # Magic
+                             top_k:int ) -> GlitteredToken:
         with torch.no_grad():
             results = self.model(**masked_tokenized_text).logits
-            probs = results.softmax(dim=-1)
+            normalized_results = results.softmax(dim=-1)
+            # Shape: Batch x Seq len x Vocab size
+            probs = normalized_results[0, -1, :].tolist()
 
-        # Get the probabilities of the last token
-        # Shape: Batch x Seq len x Vocab size
-        probs = probs[0, -1, :].tolist()
-        indexed_probs = [(index, p) for index, p in enumerate(probs)]
-        indexed_probs.sort(key=lambda x: x[1], reverse=True)
-        probs_top_k = indexed_probs[:top_k]
-        
-        # Create list of tuples with the token and its probability
-        str_prob = [(self.tokenizer.decode([index]), p) for index, p in probs_top_k]
-        return GlitteredToken(self.tokenizer.decode(original_token), str_prob)
+        top_tokens = get_top_k_tokens(probs, self.tokenizer, top_k)
+        return GlitteredToken(self.tokenizer.decode(original_token), top_tokens)
 
 
-    def glitter_text(self, text: str) -> GlitteredText:
+    def glitter_text(self, text: str, top_k:int=None) -> GlitteredText:
+        if top_k is None:
+            top_k = self.top_k
         # Create a new empty GlitteredText object
         gt = GlitteredText(models=["Robeczech"])
         tokenized_text = self.tokenizer(text)["input_ids"]
@@ -67,7 +59,7 @@ class Robeczech(GlitterModel):
                               description="Glittering...",
                               total=len(tokenized_text)):
             tensorified_tmcw = convert_tokenized_text_to_tensor(tmcw)
-            gt.append(self.glitter_masked_token(ot, tensorified_tmcw, top_k=self.top_k))
+            gt.append(self.glitter_masked_token(ot, tensorified_tmcw, top_k=top_k))
         return gt
 
 

@@ -16,7 +16,7 @@ class Robeczech(GlitterModel):
     MODEL_PATH = "models/robeczech-base"
 
     def __init__(self,
-                 context_window_size: int = 5,
+                 context_window_size: int = 100,
                  top_k: int = 1000):
         super().__init__("Robeczech", "cs", context_window_size=context_window_size, sample_size=top_k)
         self.context_window_size = context_window_size

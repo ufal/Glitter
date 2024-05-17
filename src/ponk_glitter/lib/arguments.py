@@ -2,7 +2,7 @@ import argparse
 import os
 
 
-def get_args():
+def get_server_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--debug",

@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, send_from_directory, request, render_template
 from functools import cache
-from lib.arguments import get_args
+from lib.arguments import get_server_args
 from models.robeczech import Robeczech
 from lib.glitter_common import GlitteredText
 
@@ -45,7 +45,7 @@ def server_init():
 
 
 if __name__ == "__main__":
-    args = get_args()
+    args = get_server_args()
     server_init()
     app.run(host=args.host, port=args.port, debug=args.debug)
 

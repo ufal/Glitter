@@ -1,0 +1,93 @@
+
+.gt-heatmap-0 {
+    background-color: #0000ff; /* Blue */
+}
+.gt-heatmap-1 {
+    background-color: #001fff; /* Slightly lighter blue */
+}
+.gt-heatmap-2 {
+    background-color: #003fff; /* Lighter blue */
+}
+.gt-heatmap-3 {
+    background-color: #005fff; /* Light blue */
+}
+.gt-heatmap-4 {
+    background-color: #007fff; /* Sky blue */
+}
+.gt-heatmap-5 {
+    background-color: #009fff; /* Pale blue */
+}
+.gt-heatmap-6 {
+    background-color: #00bfff; /* Aqua */
+}
+.gt-heatmap-7 {
+    background-color: #00dfff; /* Light cyan */
+}
+
+.gt-heatmap-8 {
+    background-color: #00ffff; /* Cyan */
+}
+.gt-heatmap-9 {
+    background-color: #00ff7f; /* Light green */
+}
+.gt-heatmap-10 {
+    background-color: #00ff00; /* Green */
+}
+.gt-heatmap-11 {
+    background-color: #7fff00; /* Yellow-green */
+}
+
+.gt-heatmap-12 {
+    background-color: #ffff00; /* Yellow */
+}
+.gt-heatmap-13 {
+    background-color: #ffbf00; /* Orange-yellow */
+}
+.gt-heatmap-14 {
+    background-color: #ff7f00; /* Orange */
+}
+.gt-heatmap-15 {
+    background-color: #ff0000; /* Red */
+}
+
+/************************************************************/
+
+.gt-context {
+	display: None;
+}
+
+.glitter-token {
+	display: inline-block;
+}
+
+.glitter-token > .gt-heatmap-0,
+.glitter-token > .gt-heatmap-1,
+.glitter-token > .gt-heatmap-2,
+.glitter-token > .gt-heatmap-3,
+.glitter-token > .gt-heatmap-4,
+.glitter-token > .gt-heatmap-5,
+.glitter-token > .gt-heatmap-6,
+.glitter-token > .gt-heatmap-7,
+.glitter-token > .gt-heatmap-8,
+.glitter-token > .gt-heatmap-9,
+.glitter-token > .gt-heatmap-10,
+.glitter-token > .gt-heatmap-11,
+.glitter-token > .gt-heatmap-12,
+.glitter-token > .gt-heatmap-13,
+.glitter-token > .gt-heatmap-14,
+.glitter-token > .gt-heatmap-15 {
+	display: inline-block;
+	color: black;
+	font-size: 1.5em;
+}
+
+.glittered-text {
+	display: inline-block;
+	position: relative;
+}
+
+/* show gt-context when over of glitter-token inside that glittered-text */
+.glittered-text:hover > .gt-context {
+	display: block;
+}
+

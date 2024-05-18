@@ -1,16 +1,33 @@
 from typing import List
 
-from flask import jsonify
 from torch import torch
+from jinja2 import Template
 
 
 class GlitteredToken:
+    __HEATMAP_CATEGORIES = [1, 5, 10, 15, 25, 50, 75, 100, 
+                            500, 1000, 5000, 10000, 15000, 20000, 25000, 30000]
+    __HTML_TEMPLATE = '''
+    <div class="glitter-token">
+        <span class="gt-heatmap-{{ heatmap_color_index }}">{{ original_token }}</span>
+            <div class="gt-context">
+                <span class="gt-probability">{{ probability }}</span>
+                <span class="gt-nth">{{ nth }}</span>
+                    <ul>
+                        {% for item in data %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+    '''.strip()
 
     def __init__(self, original_token: str, raw_values):
         self.probability = 0
         self.original_token = original_token
         self.data = raw_values
         self.nth = -1
+        self.vocab_size = len(raw_values)
         for n, (token, prob) in enumerate(raw_values, start=1):
             if token.strip() == original_token.strip():
                 self.probability = prob
@@ -25,7 +42,20 @@ class GlitteredToken:
         }
 
     def to_html(self):
-        output = f"<span class='glittered-token'>{self.original_token}</span>"
+        heatmap_color_index = 15
+        for i, category in enumerate(self.__HEATMAP_CATEGORIES):
+            if self.nth <= category:
+                heatmap_color_index = i
+                break
+
+        # Render the template with the context
+        output = Template(self.__HTML_TEMPLATE).render(
+            heatmap_color_index=heatmap_color_index,
+            original_token=self.original_token.replace(" ", "_"),
+            probability=f"{self.probability:.8f}",
+            nth=self.nth,
+            data=[f"{token} ({prob:.8f})" for token, prob in self.data[:5]]
+        )
         return output
 
 
@@ -49,10 +79,10 @@ class GlitteredText:
         })
 
     def to_html(self) -> str:
-        output = ""
+        output = '<div class="glittered-text">'
         for token in self.content:
             output += token.to_html()
-        return output
+        return output + "</div>"
 
 
 class GlitterModel:

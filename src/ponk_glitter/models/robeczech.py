@@ -4,6 +4,7 @@ from random import choice
 from rich.progress import track
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType
 import torch
+from functools import cache
 
 from lib.context_window import TokenizedMaskedContextWindow
 from lib.glitter_common import GlitterModel, get_top_k_tokens
@@ -17,11 +18,13 @@ class Robeczech(GlitterModel):
 
     def __init__(self,
                  context_window_size: int = 100,
-                 top_k: int = 1000):
+                 top_k: int = None):
         super().__init__("Robeczech", "cs", context_window_size=context_window_size, sample_size=top_k)
         self.context_window_size = context_window_size
-        self.top_k = top_k
         self.model = AutoModelForMaskedLM.from_pretrained(self.MODEL_PATH)
+        if top_k is None:
+            top_k = self.model.config.vocab_size
+        self.top_k = top_k
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_PATH)
         self.tokenizer.add_special_tokens({"additional_special_tokens": self.SPECIAL_TOKENS})
         self.pipe = pipeline('fill-mask', model=self.model, tokenizer=self.tokenizer)
@@ -29,6 +32,7 @@ class Robeczech(GlitterModel):
         self.end_token = self.tokenizer.convert_tokens_to_ids("[SEP]")
 
 
+    #@cache # dict is not hashable
     def glitter_masked_token(self, original_token: int,
                              masked_tokenized_text: {str: TensorType},
                              top_k:int ) -> GlitteredToken:
@@ -71,3 +75,4 @@ class Robeczech(GlitterModel):
         for st in self.SPECIAL_TOKENS:
             text = text.replace(st, "")
         return text
+

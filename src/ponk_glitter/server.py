@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from flask import Flask, jsonify, send_from_directory, request, render_template
 from functools import cache
 from lib.arguments import get_server_args
@@ -32,8 +33,9 @@ def static_route(path):
 @app.route("/glitter_text", methods=["POST"])
 def glitter_text():
     text_to_glitter = request.form["text_to_glitter"]
-    model = request.form["model"]
-    return render_template("index.html", glittered_text=model)
+    model = MODELS[request.form["model"]]
+    glittered_text = model.glitter_text(text_to_glitter)
+    return render_template("index.html", glittered_text=glittered_text.to_html())
 
 
 ######################################################################################
@@ -42,6 +44,10 @@ def glitter_text():
 def server_init():
     global MODELS
     MODELS["robeczech"] = Robeczech()
+
+    print("Models loaded:")
+    for model_name in MODELS.keys():
+        print(f" - {model_name}")
 
 
 if __name__ == "__main__":

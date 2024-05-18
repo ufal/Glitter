@@ -4,7 +4,6 @@ import os
 
 def get_server_args():
     parser = argparse.ArgumentParser()
-
     parser.add_argument("--debug",
                         default=False,
                         action="store_true",
@@ -15,23 +14,5 @@ def get_server_args():
     parser.add_argument("--port",
                         default="4000",
                         help="Port to launch UI and API (default:5001)")
-    """
-    parser.add_argument("--model",
-                        default="robeczech",
-                        choices=["gpt-3-small", "BERT", "robeczech", "gpt-2-small"],
-                        help="Select language model to use")
-    parser.add_argument("--nocache",
-                        default=False,
-                        action="store_true",
-                        help="Disable caching")
-    parser.add_argument("--dir",
-                        type=str,
-                        default=os.path.abspath("../data"),
-                        help="Directory to scan for ???")
-    parser.add_argument("--no_cors",
-                        action="store_true",
-                        help="Launch API without CORS support")
-    """
-
     return parser.parse_args()
 

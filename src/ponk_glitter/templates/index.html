@@ -3,6 +3,7 @@
 	<head>
 		<title>PONK: Glitter</title>
 		<link rel="stylesheet" href="/pico.css">
+		<link rel="stylesheet" href="/glitter.css">
 	</head>
 	<body>
 		<main class="container">
@@ -12,7 +13,8 @@
 				</header>
 				<section>
 					<form action="/glitter_text" method="post">
-						<input type="text" name="text_to_glitter" placeholder="Text">
+						<label for="text_to_glitter">Text to glitter:</label>
+						<textarea name="text_to_glitter" placeholder="Text">
 						<label for="model">Choose a language model:</label>
 						<select name="model" id="model">
 							<option value="robeczech">Robeczech</option>
@@ -20,9 +22,11 @@
 						<input type="submit" value="glitter">
 					</form>
 				</section>
+				{% if glittered_text %}
 				<section>
 					{{ glittered_text }}
 				</section>
+				{% endif %}
 			</article>
 		</main>
 	</body>

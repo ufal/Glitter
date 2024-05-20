@@ -5,8 +5,8 @@ from jinja2 import Template
 
 
 class GlitteredToken:
-    __HEATMAP_CATEGORIES = [1, 5, 10, 15, 25, 50, 75, 100, 
-                            500, 1000, 5000, 10000, 15000, 20000, 25000, 30000]
+    __HEATMAP_CATEGORIES = [1, 3, 5, 10, 15, 25, 50, 75, 100,
+                            250, 500, 1000, 5000, 10000, 15000, 20000]
     __HTML_TEMPLATE = '''
     <div class="glitter-token">
         <span class="gt-heatmap-{{ heatmap_color_index }}">{{ original_token }}</span>

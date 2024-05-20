@@ -13,11 +13,11 @@ class GlitteredToken:
             <div class="gt-context">
                 <span class="gt-probability">{{ probability }}</span>
                 <span class="gt-nth">{{ nth }}</span>
-                    <ul>
+                    <ol>
                         {% for item in data %}
                             <li>{{ item }}</li>
                         {% endfor %}
-                    </ul>
+                    </ol>
                 </div>
             </div>
     '''.strip()

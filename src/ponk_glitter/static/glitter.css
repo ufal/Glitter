@@ -87,8 +87,29 @@
 	position: relative;
 }
 
+.glitter-token{
+	position: relative;
+}
+
+.gt-context {
+	position: absolute;
+	color: black;
+	top: 1em;
+	left: 0;
+	background-color: white;
+	border: 1px solid black;
+	padding: 5px;
+	z-index: 1000;
+}
+
+
+.glitter-token ul ol li {
+	color: black;
+}
+
+
 /* show gt-context when over of glitter-token inside that glittered-text */
-.glittered-text:hover > .gt-context {
+.glitter-token:hover > .gt-context {
 	display: block;
 }
 

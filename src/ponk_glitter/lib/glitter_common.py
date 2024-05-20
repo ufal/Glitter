@@ -22,6 +22,7 @@ class GlitteredToken:
             </div>
     '''.strip()
 
+
     def __init__(self, original_token: str, raw_values):
         self.probability = 0
         self.original_token = original_token
@@ -34,12 +35,14 @@ class GlitteredToken:
                 self.nth = n
                 break
 
+
     def to_dict(self):
         return {
             "original_token": self.original_token,
             "probability": self.probability,
             "nth": self.nth,
         }
+
 
     def to_html(self):
         heatmap_color_index = 15

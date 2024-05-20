@@ -51,7 +51,7 @@ class GlitteredToken:
         # Render the template with the context
         output = Template(self.__HTML_TEMPLATE).render(
             heatmap_color_index=heatmap_color_index,
-            original_token=self.original_token.replace(" ", "_"),
+            original_token=self.original_token.replace(" ", "&nbsp;"),
             probability=f"{self.probability:.8f}",
             nth=self.nth,
             data=[f"{token} ({prob:.8f})" for token, prob in self.data[:5]]

@@ -12,19 +12,33 @@
 					<h1>PONK: Glitter</h1>
 				</header>
 				<section>
-					<form action="/glitter_text" method="post">
+					<form action="/" method="post">
+						<div class="grid">
+							<div>
+								<label for="model">Choose a language model:</label>
+								<select name="model" id="model">
+									{% for model in models %}
+										<option value="{{ model }}">{{- model -}}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<div>
+								<label for="color-mode">Choose a color mode:</label>
+								<select name="color-mode" id="color-mode">
+									{% for color_mode in color_modes %}
+										<option value="{{ color_mode }}">{{- color_mode.capitalize() -}}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
 						<label for="text_to_glitter">Text to glitter:</label>
-						<textarea name="text_to_glitter" placeholder="Text">
-						<label for="model">Choose a language model:</label>
-						<select name="model" id="model">
-							<option value="robeczech">Robeczech</option>
-						</select>
+						<input type="text" name="text_to_glitter" placeholder="Text">
 						<input type="submit" value="glitter">
 					</form>
 				</section>
 				{% if glittered_text %}
 				<section>
-					{{ glittered_text }}
+					{{ glittered_text|safe }}
 				</section>
 				{% endif %}
 			</article>

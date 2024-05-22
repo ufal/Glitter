@@ -11,9 +11,9 @@
 				<header>
 					<h1><b>PONK:</b> Glitter</h1>
 					<div class="grid">
-						{% for color in range(16) %}
-						<div class="gt-heatmap-{{- color -}}"><span>&nbsp;<span></div>
-						{% endfor %}
+						{% for color in range(16) -%}
+						<div class="gt-heatmap-{{- color -}}"><span>&nbsp;</span></div>
+						{% endfor -%}
 					</div>
 				</header>
 				<section>
@@ -22,27 +22,26 @@
 							<div>
 								<label for="model">Choose a language model:</label>
 								<select name="model" id="model">
-									{% for model in models %}
+									{% for model in models -%}
 										<option value="{{ model }}" {% if model == selected_model -%}selected{%- endif -%}>
 											{{- model -}}
 										</option>
-									{% endfor %}
+									{% endfor -%}
 								</select>
 							</div>
 							<div>
 								<label for="color_mode">Choose a color mode:</label>
 								<select name="color_mode" id="color_mode">
-									{% for color_mode in color_modes %}
+									{% for color_mode in color_modes -%}
 										<option value="{{ color_mode }}" {% if color_mode == selected_color_mode -%}selected{%- endif -%}>
 											{{- color_mode.capitalize() -}}
 										</option>
-									{% endfor %}
+									{% endfor -%}
 								</select>
 							</div>
 						</div>
 						<label for="text_to_glitter">Text to glitter:</label>
-						<textarea name="text_to_glitter" placeholder="Text to glitter.." aria-label="Text to glitter">
-						</textarea>
+						<textarea name="text_to_glitter" placeholder="Text to glitter.." aria-label="Text to glitter"></textarea>
 						<input type="submit" value="glitter">
 					</form>
 				</section>

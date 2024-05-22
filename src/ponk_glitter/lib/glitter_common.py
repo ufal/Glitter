@@ -2,6 +2,7 @@ from typing import List
 
 from torch import torch
 from jinja2 import Template
+import json
 
 
 class GlitteredToken:
@@ -43,6 +44,7 @@ class GlitteredToken:
             "original_token": self.original_token,
             "probability": self.probability,
             "nth": self.nth,
+            "top_5": self.data[:5]
         }
 
 
@@ -72,11 +74,11 @@ class GlitteredToken:
 
 
 class GlitteredText:
-    content: List[GlitteredToken] = list()
-    used_models: List[str] = list()
 
     def __init__(self, models: List[str]):
         self.used_models = models
+        self.content: List[GlitteredToken] = list()
+        self.used_models: List[str] = list()
 
     def append(self, token: GlitteredToken) -> None:
         self.content.append(token)
@@ -85,16 +87,19 @@ class GlitteredText:
         return self.content
 
     def to_json(self):
-        return jsonify({
-            "content": [token.to_dict() for token in self.content],
-            "used_models": self.used_models
-        })
+        return json.dumps(self.to_dict())
 
     def to_html(self) -> str:
         output = '<div class="glittered-text">'
         for token in self.content:
             output += token.to_html()
         return output + "</div>"
+
+    def to_dict(self):
+        return {
+            "content": [token.to_dict() for token in self.content],
+            "used_models": self.used_models
+        }
 
 
 class GlitterModel:

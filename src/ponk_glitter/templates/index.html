@@ -9,7 +9,12 @@
 		<main class="container">
 			<article>
 				<header>
-					<h1>PONK: Glitter</h1>
+					<h1><b>PONK:</b> Glitter</h1>
+					<div class="grid">
+						{% for color in range(16) %}
+						<div class="gt-heatmap-{{- color -}}"><span>&nbsp;<span></div>
+						{% endfor %}
+					</div>
 				</header>
 				<section>
 					<form action="/" method="post">
@@ -23,8 +28,8 @@
 								</select>
 							</div>
 							<div>
-								<label for="color-mode">Choose a color mode:</label>
-								<select name="color-mode" id="color-mode">
+								<label for="color_mode">Choose a color mode:</label>
+								<select name="color_mode" id="color_mode">
 									{% for color_mode in color_modes %}
 										<option value="{{ color_mode }}">{{- color_mode.capitalize() -}}</option>
 									{% endfor %}
@@ -41,6 +46,8 @@
 					{{ glittered_text|safe }}
 				</section>
 				{% endif %}
+				<footer>
+				</footer>
 			</article>
 		</main>
 	</body>

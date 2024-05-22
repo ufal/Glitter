@@ -94,8 +94,8 @@
 .gt-context {
 	position: absolute;
 	color: black;
-	top: 1em;
-	left: 0;
+	top: 1.3em;
+	left: 0.6em;
 	background-color: white;
 	border: 1px solid black;
 	padding: 5px;
@@ -103,7 +103,7 @@
 }
 
 
-.glitter-token ul ol li {
+li {
 	color: black;
 }
 

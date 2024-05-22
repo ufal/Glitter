@@ -27,7 +27,7 @@ class Robeczech(GlitterModel):
         self.top_k = top_k
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_PATH)
         self.tokenizer.add_special_tokens({"additional_special_tokens": self.SPECIAL_TOKENS})
-        self.pipe = pipeline('fill-mask', model=self.model, tokenizer=self.tokenizer)
+        self.pipe = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer)
         self.start_token = self.tokenizer.convert_tokens_to_ids("[CLS]")
         self.end_token = self.tokenizer.convert_tokens_to_ids("[SEP]")
 
@@ -36,6 +36,7 @@ class Robeczech(GlitterModel):
     def glitter_masked_token(self, original_token: int,
                              masked_tokenized_text: {str: TensorType},
                              top_k:int ) -> GlitteredToken:
+        masked_tokenized_text = convert_tokenized_text_to_tensor(masked_tokenized_text)
         with torch.no_grad():
             results = self.model(**masked_tokenized_text).logits
             normalized_results = results.softmax(dim=-1)
@@ -62,8 +63,8 @@ class Robeczech(GlitterModel):
                                   )),
                               description="Glittering...",
                               total=len(tokenized_text)):
-            tensorified_tmcw = convert_tokenized_text_to_tensor(tmcw)
-            gt.append(self.glitter_masked_token(ot, tensorified_tmcw, top_k=top_k))
+            print(tmcw)
+            gt.append(self.glitter_masked_token(ot, tmcw, top_k=top_k))
         return gt
 
 

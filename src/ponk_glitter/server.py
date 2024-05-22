@@ -50,8 +50,9 @@ def glitter_text(text_to_glitter: str, model_name: str, color_mode: str) -> str:
 def glitter_text_request():
     text_to_glitter = request.form["text_to_glitter"]
     model_name = request.form["model"]
-    #color_mode = request.form["color_mode"]
-    return render_index_page(glitter_text(text_to_glitter, model_name, ""))
+    color_mode = request.form["color_mode"]
+    print(f" * Glittering with model: {model_name} and color_mode: {color_mode}")
+    return render_index_page(glitter_text(text_to_glitter, model_name, color_mode))
 
 
 ######################################################################################

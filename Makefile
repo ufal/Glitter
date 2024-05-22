@@ -16,5 +16,5 @@ install:
 
 
 run:
-	python server.py --host "0.0.0.0" --port "8000"
+	python .src/ponk_glitter/server.py --host "0.0.0.0" --port "8000"
 

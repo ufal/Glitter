@@ -5,19 +5,21 @@ from jinja2 import Template
 
 
 class GlitteredToken:
-    __HEATMAP_CATEGORIES = [1, 3, 5, 10, 15, 25, 50, 75, 100,
-                            250, 500, 1000, 5000, 10000, 15000, 20000]
+    __HEATMAP_CATEGORIES = tuple(enumerate([1, 3, 5, 10, 15, 25, 50, 75, 100,
+                            250, 500, 1000, 5000, 10000, 15000, 20000]))
+    __SIMPLE_CATEGORY = ((0,1), (3, 10), (7, 100), (10, 1000), (14, 10000))
     __HTML_TEMPLATE = '''
     <div class="glitter-token">
-        <span class="gt-heatmap-{{ heatmap_color_index }}">{{ original_token }}</span>
+        <span class="gt-heatmap-{{- heatmap_color_index -}}">{{ original_token }}</span>
             <div class="gt-context">
-                <span class="gt-probability">{{ probability }}</span>
-                <span class="gt-nth">{{ nth }}</span>
-                    <ol>
-                        {% for item in data %}
-                            <li>{{ item }}</li>
-                        {% endfor %}
-                    </ol>
+                <span class="gt-probability">P: {{ probability -}}</span>
+                <span class="gt-nth">N: {{ nth -}}</span>
+                <hr>
+                <ol>
+                    {% for item in data -%}
+                        <li>{{ item }}</li>
+                    {%- endfor -%}
+                </ol>
                 </div>
             </div>
     '''.strip()
@@ -44,21 +46,28 @@ class GlitteredToken:
         }
 
 
-    def to_html(self):
-        heatmap_color_index = 15
-        for i, category in enumerate(self.__HEATMAP_CATEGORIES):
+    def to_html(self, color_mode="heatmap"):
+        color_mode = color_mode.lower()
+        if color_mode == "simple":
+            color_map = self.__SIMPLE_CATEGORY
+        else:
+            color_map = self.__HEATMAP_CATEGORIES
+
+        color_index = 15
+        for i, category in color_map:
             if self.nth <= category:
-                heatmap_color_index = i
+                color_index = i
                 break
 
         # Render the template with the context
         output = Template(self.__HTML_TEMPLATE).render(
-            heatmap_color_index=heatmap_color_index,
+            heatmap_color_index=color_index,
             original_token=self.original_token.replace(" ", "&nbsp;"),
             probability=f"{self.probability:.8f}",
             nth=self.nth,
             data=[f"{token} ({prob:.8f})" for token, prob in self.data[:5]]
         )
+
         return output
 
 

@@ -6,7 +6,7 @@ from models.robeczech import Robeczech
 from lib.glitter_common import GlitteredText
 
 MODELS = dict()
-COLOR_MODES = ("simple", "heatmap")
+COLOR_MODES = ("heatmap", "simple")
 app = Flask(__name__, static_folder="static")
 
 
@@ -17,11 +17,21 @@ def sanitize_path(path):
     return path.replace("../", "").replace("./", "")
 
 
-def render_index_page(glittered_text="", models=MODELS.keys(), color_modes=COLOR_MODES):
+def render_index_page(glittered_text="",
+                      models=MODELS.keys(),
+                      color_modes=COLOR_MODES,
+                      selected_model=None,
+                      selected_color_mode=None):
+    if selected_model == None and models:
+        selected_model = tuple(models)[0]
+    if selected_color_mode == None and color_modes:
+        selected_color_mode = COLOR_MODES[0]
     return render_template("index.html",
                            glittered_text=glittered_text,
                            color_modes=color_modes,
-                           models=models)
+                           models=models,
+                           selected_model=selected_model,
+                           selected_color_mode=selected_color_mode)
 
 
 @app.route("/", methods=["GET"])
@@ -52,7 +62,9 @@ def glitter_text_request():
     model_name = request.form["model"]
     color_mode = request.form["color_mode"]
     print(f" * Glittering with model: {model_name} and color_mode: {color_mode}")
-    return render_index_page(glitter_text(text_to_glitter, model_name, color_mode))
+    return render_index_page(glitter_text(text_to_glitter, model_name, color_mode),
+                             selected_model=model_name,
+                             selected_color_mode=color_mode)
 
 
 ######################################################################################

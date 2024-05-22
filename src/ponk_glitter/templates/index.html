@@ -23,7 +23,9 @@
 								<label for="model">Choose a language model:</label>
 								<select name="model" id="model">
 									{% for model in models %}
-										<option value="{{ model }}">{{- model -}}</option>
+										<option value="{{ model }}" {% if model == selected_model -%}selected{%- endif -%}>
+											{{- model -}}
+										</option>
 									{% endfor %}
 								</select>
 							</div>
@@ -31,13 +33,16 @@
 								<label for="color_mode">Choose a color mode:</label>
 								<select name="color_mode" id="color_mode">
 									{% for color_mode in color_modes %}
-										<option value="{{ color_mode }}">{{- color_mode.capitalize() -}}</option>
+										<option value="{{ color_mode }}" {% if color_mode == selected_color_mode -%}selected{%- endif -%}>
+											{{- color_mode.capitalize() -}}
+										</option>
 									{% endfor %}
 								</select>
 							</div>
 						</div>
 						<label for="text_to_glitter">Text to glitter:</label>
-						<input type="text" name="text_to_glitter" placeholder="Text">
+						<textarea name="text_to_glitter" placeholder="Text to glitter.." aria-label="Text to glitter">
+						</textarea>
 						<input type="submit" value="glitter">
 					</form>
 				</section>
@@ -47,6 +52,11 @@
 				</section>
 				{% endif %}
 				<footer>
+					<p> Glitter was created as a part of the
+						<a href="https://ufal.mff.cuni.cz/grants/ponk">PONK project</a> at the
+						<a href="https://ufal.mff.cuni.cz">Institute of Formal and Applied Linguistics</a> at the
+						<a href="https://cuni.cz">Charles University</a> in Prague.
+					</p>
 				</footer>
 			</article>
 		</main>

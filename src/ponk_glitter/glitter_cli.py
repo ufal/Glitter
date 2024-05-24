@@ -2,6 +2,7 @@
 from models.robeczech import Robeczech
 from lib.tui import print_glittered_text, print_table_of_glittered_text
 from lib.arguments import get_cli_args
+from rich import print
 
 
 RBCZ = Robeczech()
@@ -28,4 +29,4 @@ if __name__ == '__main__':
     else:
         print_table_of_glittered_text(gt)
         print("\n")
-        print_glittered_text(gt)
+        print(str(gt))

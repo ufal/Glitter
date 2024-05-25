@@ -63,7 +63,6 @@ class Robeczech(GlitterModel):
                                   )),
                               description="Glittering...",
                               total=len(tokenized_text)):
-            print(tmcw)
             gt.append(self.glitter_masked_token(ot, tmcw, top_k=top_k))
         return gt
 

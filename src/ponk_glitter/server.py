@@ -26,6 +26,7 @@ def render_index_page(glittered_text="",
         selected_model = tuple(models)[0]
     if selected_color_mode == None and color_modes:
         selected_color_mode = COLOR_MODES[0]
+
     return render_template("index.html",
                            glittered_text=glittered_text,
                            color_modes=color_modes,

@@ -13,7 +13,10 @@ class BertMultilingualUncased(GlitterUnmaskingModel):
     def __init__(self,
                  context_window_size: int = 100,
                  top_k: int = None):
-        super().__init__("Bert multilingual uncased", "multilingual", context_window_size=context_window_size, sample_size=top_k)
+        super().__init__(name="Bert multilingual uncased",
+                         lang="multilingual",
+                         context_window_size=context_window_size,
+                         sample_size=top_k)
         self.context_window_size = context_window_size
         self.model = AutoModelForMaskedLM.from_pretrained(self.MODEL_PATH)
         if top_k is None:

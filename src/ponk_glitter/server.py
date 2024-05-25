@@ -2,8 +2,10 @@
 from flask import Flask, jsonify, send_from_directory, request, render_template
 from functools import cache
 from lib.arguments import get_server_args
-from models.robeczech import Robeczech
 from lib.glitter_common import GlitteredText
+
+from models.robeczech import Robeczech
+from models.bert_multilingual_uncased import BertMultilingualUncased
 
 MODELS = dict()
 COLOR_MODES = ("heatmap", "simple")
@@ -17,7 +19,8 @@ def sanitize_path(path):
     return path.replace("../", "").replace("./", "")
 
 
-def render_index_page(glittered_text="",
+def render_index_page(text_to_glitter="",
+                      glittered_text="",
                       models=MODELS.keys(),
                       color_modes=COLOR_MODES,
                       selected_model=None,
@@ -28,6 +31,7 @@ def render_index_page(glittered_text="",
         selected_color_mode = COLOR_MODES[0]
 
     return render_template("index.html",
+                           text_to_glitter=text_to_glitter,
                            glittered_text=glittered_text,
                            color_modes=color_modes,
                            models=models,
@@ -63,7 +67,8 @@ def glitter_text_request():
     model_name = request.form["model"]
     color_mode = request.form["color_mode"]
     print(f" * Glittering with model: {model_name} and color_mode: {color_mode}")
-    return render_index_page(glitter_text(text_to_glitter, model_name, color_mode),
+    return render_index_page(text_to_glitter=text_to_glitter,
+                             glittered_text=glitter_text(text_to_glitter, model_name, color_mode),
                              selected_model=model_name,
                              selected_color_mode=color_mode)
 
@@ -74,6 +79,7 @@ def glitter_text_request():
 def server_init():
     global MODELS
     MODELS["Robeczech"] = Robeczech()
+    MODELS["BertMultilingualUncased"] = BertMultilingualUncased()
 
     print(" * Models loaded:")
     for model_name in MODELS.keys():

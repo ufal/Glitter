@@ -33,6 +33,10 @@ def get_cli_args():
                                 default=False,
                                 action="store_true",
                                 help="export data to python dictionary")
+    export_options.add_argument("--to-table",
+                                default=False,
+                                action="store_true",
+                                help="export data to table")
 
     parser.add_argument("--output",
                         default="/dev/stdout",
@@ -40,5 +44,9 @@ def get_cli_args():
     parser.add_argument("--input",
                         default="/dev/stdin",
                         help="input file name (default: stdin)")
+    parser.add_argument("--model",
+                        default="Robeczech",
+                        help="name of model you want to use to glitter text (default: Robeczech)")
 
     return parser.parse_args()
+

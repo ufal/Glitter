@@ -2,9 +2,45 @@ from typing import List
 
 from torch import torch
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType
+
 from rich.progress import track
+from rich import print
+
 from lib.glitter_common import *
 from lib.context_window import TokenizedMaskedContextWindow
+
+
+AVAILABLE_MODELS = {}
+
+
+def register_model(name):
+    def decorator(cls):
+        #print(f" * Registered model {cls} with name {name}")
+        AVAILABLE_MODELS[name] = cls
+        return cls
+    return decorator
+
+def load_models(logging=False):
+    from os import listdir
+    #for all files in models directory
+    for module in listdir("models"):
+        if module == "__init__.py" or module[-3:] != ".py":
+            continue
+        __import__(f"models.{module[:-3]}", locals(), globals())
+    del module
+
+    models = dict()
+    if logging:
+        print(" * Models loaded:")
+    for model_name in AVAILABLE_MODELS.keys():
+        model = AVAILABLE_MODELS[model_name]()
+        models[model.name] = model
+        if logging:
+            print(f"   - {model.name}")
+    if len(models) == 0 and logging:
+        print(" * No models loaded.")
+    return models
+
 
 
 class GlitterModel:

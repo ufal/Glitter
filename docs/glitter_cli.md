@@ -25,7 +25,7 @@ glitter_cli.py [-h] [--to-json | --to-html | --to-dict | --to-table] [--output O
 
 ### HTML
 Simplified output of glittered text with one token `Ivanka`:
-```
+```html
 <div class="glittered-text">
     <div class="glitter-token">
         <span class="gt-heatmap-15">Ivanka</span>
@@ -47,7 +47,7 @@ Simplified output of glittered text with one token `Ivanka`:
 
 ### JSON
 Simplified output of glittered text with one token `Bára`:
-```
+```json
 {
   "content": [
     {
@@ -69,9 +69,9 @@ Simplified output of glittered text with one token `Bára`:
 
 ### Python dict
 Simplified output of glittered text with one token `Silva`:
-```
+```python
 {'content': [{
-    {'original_token': 'Sil',
+    {'original_token': 'Silva',
      'probability': 7.57262568623629e-12,
      'nth': 3352,
      'top_5': [('[SEP]', 0.9999964237213135),

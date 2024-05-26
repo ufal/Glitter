@@ -11,8 +11,6 @@ MODELS = load_models(logging=True)
 COLOR_MODES = ("heatmap", "simple")
 
 app = Flask(__name__, static_folder="static")
-log = logging.getLogger("werkzeug")
-log.setLevel(logging.ERROR)
 
 
 ######################################################################################
@@ -81,6 +79,14 @@ def glitter_text_request():
 
 if __name__ == "__main__":
     args = get_server_args()
+
+    log = logging.getLogger("werkzeug")
+    if args.debug:
+        log.setLevel(logging.DEBUG)
+    else:
+        log.setLevel(logging.ERROR)
+
     if len(MODELS) == 0:
         exit(1)
+
     app.run(host=args.host, port=args.port, debug=args.debug)

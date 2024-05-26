@@ -20,15 +20,19 @@ def register_model(name):
         return cls
     return decorator
 
-def load_models(logging=False):
+
+def get_registered_models():
     from os import listdir
-    #for all files in models directory
     for module in listdir("models"):
         if module == "__init__.py" or module[-3:] != ".py":
             continue
         __import__(f"models.{module[:-3]}", locals(), globals())
     del module
+    return AVAILABLE_MODELS
 
+
+def load_models(logging=False):
+    get_registered_models()
     models = dict()
     if logging:
         print(" * Models loaded:")
@@ -40,7 +44,6 @@ def load_models(logging=False):
     if len(models) == 0 and logging:
         print(" * No models loaded.")
     return models
-
 
 
 class GlitterModel:

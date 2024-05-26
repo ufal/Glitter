@@ -2,10 +2,11 @@
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType
 import torch
 
-from lib.glitter_models import GlitterUnmaskingModel
+from lib.glitter_models import GlitterUnmaskingModel, register_model
 
 logging.set_verbosity(logging.CRITICAL)
 
+@register_model("robeczech")
 class Robeczech(GlitterUnmaskingModel):
     SPECIAL_TOKENS = ["[SEP]", "[CLS]"]
     MODEL_PATH = "models/robeczech-base"

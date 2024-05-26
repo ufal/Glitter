@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType
 import torch
+from unidecode import unidecode
 
-from lib.glitter_models import GlitterUnmaskingModel
+from lib.glitter_models import GlitterUnmaskingModel, register_model
 
 logging.set_verbosity(logging.CRITICAL)
 
+@register_model("bert_multilingual_uncased")
 class BertMultilingualUncased(GlitterUnmaskingModel):
     SPECIAL_TOKENS = ["[SEP]", "[CLS]"]
     MODEL_PATH = "models/bert-base-multilingual-uncased"
@@ -30,4 +32,4 @@ class BertMultilingualUncased(GlitterUnmaskingModel):
 
 
     def __text_preprocessing__(self, text: str) -> str:
-        return text.lower()
+        return unidecode(text.lower())

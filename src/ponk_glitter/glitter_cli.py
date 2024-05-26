@@ -5,8 +5,8 @@ from rich.table import Table
 
 from lib.glitter_common import GlitteredText
 from lib.arguments import get_cli_args
+from lib.glitter_models import AVAILABLE_MODELS, load_models
 
-RBCZ = Robeczech()
 COLOR_GRADIENT = ["cornsilk1",
                   "wheat1",
                   "khaki1",
@@ -49,9 +49,16 @@ if __name__ == '__main__':
     output_file = args.output if args.output else "/dev/stdout"
     args.model = args.model.lower()
 
+    load_models()
+
+    if args.model not in AVAILABLE_MODELS:
+        print("Model not found")
+        exit(1)
+    m = AVAILABLE_MODELS[args.model]()
+
     with open(input_file, "r") as file:
         text = file.read()
-        gt = RBCZ.glitter_text(text)
+        gt = m.glitter_text(text)
 
     if args.to_json:
         with open(output_file, "w") as file:
@@ -68,3 +75,4 @@ if __name__ == '__main__':
         print_color_gradient()
         print("")
         print(str(gt))
+

@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 from flask import Flask, jsonify, send_from_directory, request, render_template
+import logging
 from functools import cache
+
 from lib.arguments import get_server_args
 from lib.glitter_common import GlitteredText
+from lib.glitter_models import AVAILABLE_MODELS, load_models
 
-from models.robeczech import Robeczech
-from models.bert_multilingual_uncased import BertMultilingualUncased
-
-MODELS = dict()
+MODELS = load_models(logging=True)
 COLOR_MODES = ("heatmap", "simple")
+
 app = Flask(__name__, static_folder="static")
+log = logging.getLogger("werkzeug")
+log.setLevel(logging.ERROR)
 
 
 ######################################################################################
@@ -41,7 +44,7 @@ def render_index_page(text_to_glitter="",
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_index_page("", MODELS.keys())
+    return render_index_page()
 
 
 @app.route("/<path:path>", methods=["GET"])
@@ -76,18 +79,8 @@ def glitter_text_request():
 ######################################################################################
 # Server
 
-def server_init():
-    global MODELS
-    MODELS["Robeczech"] = Robeczech()
-    MODELS["BertMultilingualUncased"] = BertMultilingualUncased()
-
-    print(" * Models loaded:")
-    for model_name in MODELS.keys():
-        print(f"   - {model_name}")
-
-
 if __name__ == "__main__":
     args = get_server_args()
-    server_init()
+    if len(MODELS) == 0:
+        exit(1)
     app.run(host=args.host, port=args.port, debug=args.debug)
-

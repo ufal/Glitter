@@ -5,10 +5,10 @@ PHONY: run
 
 download-models:
 	echo "Downloading models..."
-	echo "    RobeCzech"
+	echo "    Robeczech"
 	git clone https://huggingface.co/ufal/robeczech-base ./src/ponk_glitter/models/robeczech-base
-	echo "    GPT2-small-czech-cs"
-	git clone https://huggingface.co/spital/gpt2-small-czech-cs ./src/ponk_glitter/models/gpt2-small-czech-cs
+	echo "    BERT base multilingual uncased"
+	git clone https://huggingface.co/google-bert/bert-base-multilingual-uncased ./src/ponk_glitter/models/bert-base-multilingual-uncased
 
 
 install:

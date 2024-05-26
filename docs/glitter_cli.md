@@ -1,9 +1,8 @@
 # PONK: Glitter cli
 This is command line interface for PONK glitter tool set.
 
-
 ## Usage
-Usage shema:
+Usage scheme:
 
 ```bash
 glitter_cli.py [-h] [--to-json | --to-html | --to-dict | --to-table] [--output OUTPUT] [--input INPUT] [--model MODEL]
@@ -15,7 +14,7 @@ glitter_cli.py [-h] [--to-json | --to-html | --to-dict | --to-table] [--output O
     - `--to-json`    - export data to JSON
     - `--to-html`    - export data to HTML
     - `--to-dict`    - export data to python dictionary format
-    - `--to-table`   - export data to table containig token, its probability, order and top 10 candidates
+    - `--to-table`   - export data to table containig for each token, its probability, order and top 10 candidates
     - Not choosing any export format will result in printing colored glittered text
 - `--output OUTPUT`  - output file name (default: `stdout`)
 - `--input INPUT`    - input file name (default: `stdin`)
@@ -80,7 +79,9 @@ Simplified output of glittered text with one token `Silva`:
                ('[CLS]', 1.5537057151959743e-07),
                (' Ř', 1.4771539724733884e-07)]
     },
-    ], 'used_models': ["Robeczech"]}⏎
+ ],
+ 'used_models': ['Robeczech']
+}
 ```
 
 ## Examples
@@ -89,7 +90,7 @@ Simplified output of glittered text with one token `Silva`:
 ```bash
 cat kabat_kdo_vi_jestli.txt | ./glitter_cli.py --model robeczech --to-table
 ```
-prints
+results
 ```
 ┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Word    ┃  Nth  ┃ Probability ┃                                                   Top 10 ┃

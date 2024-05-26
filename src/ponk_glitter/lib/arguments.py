@@ -24,22 +24,21 @@ def get_cli_args():
     export_options.add_argument("--to-json",
                                 default=False,
                                 action="store_true",
-                                help="Export data to JSON")
+                                help="export data to JSON")
     export_options.add_argument("--to-html",
                                 default=False,
                                 action="store_true",
-                                help="Export data to HTML")
+                                help="export data to HTML")
     export_options.add_argument("--to-dict",
                                 default=False,
                                 action="store_true",
-                                help="Export data to python dictionary")
+                                help="export data to python dictionary")
 
     parser.add_argument("--output",
                         default="/dev/stdout",
-                        help="Output file name (default: stdout)")
+                        help="output file name (default: stdout)")
     parser.add_argument("--input",
                         default="/dev/stdin",
-                        help="Input file name (default: stdin)")
+                        help="input file name (default: stdin)")
 
     return parser.parse_args()
-

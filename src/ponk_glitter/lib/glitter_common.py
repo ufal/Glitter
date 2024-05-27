@@ -120,6 +120,22 @@ class GlitteredText:
     def __str__(self):
         return "".join([str(token) for token in self.content])
 
+    def __len__(self):
+        return len(self.content)
+
+    def __getitem__(self, item):
+        return self.content[item]
+
+    def __iter__(self):
+        return iter(self.content)
+
+    def __reversed__(self):
+        return reversed(self.content)
+
+    def __contains__(self, item):
+        return item in self.content
+
+
 
 def convert_tokenized_text_to_tensor(tokenized_text: {str: [int]}) -> {str: torch.Tensor}:
     return {key: torch.tensor([value]) for key, value in tokenized_text.items()}

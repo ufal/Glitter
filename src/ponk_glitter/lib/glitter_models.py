@@ -9,6 +9,7 @@ from rich import print
 from lib.glitter_common import *
 from lib.context_window import TokenizedMaskedContextWindow
 
+logging.set_verbosity(logging.CRITICAL)
 
 AVAILABLE_MODELS = {}
 
@@ -82,8 +83,26 @@ class GlitterModel:
 
 class GlitterUnmaskingModel(GlitterModel):
 
-    def __init__(self, name: str, lang: str, context_window_size: int = 5, sample_size: int = 1000) -> None:
-        super().__init__(name, lang, context_window_size, sample_size)
+    def __init__(self, name: str,
+                 lang: str,
+                 model_path: str,
+                 context_window_size: int = 100,
+                 top_k=None
+                ) -> None:
+        super().__init__(name,
+                         lang,
+                         context_window_size,
+                         top_k)
+
+        self.model_path = model_path
+        self.model = AutoModelForMaskedLM.from_pretrained(model_path) #.to(self.device)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.pipeline = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer)
+
+        if top_k is None:
+            top_k = self.model.config.vocab_size
+        self.top_k = top_k
+
 
 
     #@cache # dict is not hashable

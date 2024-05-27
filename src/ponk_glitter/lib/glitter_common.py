@@ -137,3 +137,12 @@ def get_top_k_tokens(logits: list, tokenizer, top_k: int,) -> [(str, float)]:
         str_prob = [(tokenizer.decode([index]), p) for index, p in probs_top_k]
         return str_prob
 
+
+def normalize_glittered_text_with_subword_tokens(glittered_text: GlitteredText) -> GlitteredText:
+    for token in glittered_text.get_content():
+        if token.original_token.startswith("##"):
+           token.original_token = token.original_token[2:]
+        else:
+          token.original_token = " " + token.original_token
+    return glittered_text
+

@@ -1,6 +1,7 @@
 from lib.glitter_models import GlitterUnmaskingModel, register_model
 
 
+
 @register_model("robeczech")
 class Robeczech(GlitterUnmaskingModel):
 

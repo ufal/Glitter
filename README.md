@@ -7,14 +7,15 @@
 
 ## Documetation
 - ### [Glitter CLI](https://gitlab.mff.cuni.cz/teaching/nprg045/kvapilikova/ponk-glitter/-/blob/master/docs/glitter_cli.md?ref_type=heads)
-- ### Glitter server TODO
-- ### Model interface TODO
+- ### [Glitter server](https://gitlab.mff.cuni.cz/teaching/nprg045/kvapilikova/ponk-glitter/-/blob/master/docs/glitter_server.md?ref_type=heads)
+- ### [Model interface](https://gitlab.mff.cuni.cz/teaching/nprg045/kvapilikova/ponk-glitter/-/blob/master/docs/model_interface.md?ref_type=heads)
 
 
 ## Models
 Currently natively supported models:
 - [Robeczech base](https://huggingface.co/ufal/robeczech-base)
 - [BERT base model (uncased)](https://huggingface.co/google-bert/bert-base-uncased)
+- [FERNET C5](https://huggingface.co/fav-kky/FERNET-C5)
 
 For automatic model download run `make download-models` in project root directory.
 

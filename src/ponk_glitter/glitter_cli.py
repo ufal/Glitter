@@ -28,22 +28,25 @@ def print_table_of_glittered_text(gt: GlitteredText, title="") -> None:
     table.add_column("Word", justify="left", no_wrap=True)
     table.add_column("Nth", justify="center")
     table.add_column("Probability", justify="right")
-    table.add_column("Top 10", justify="right")
+    table.add_column("Top results", justify="right")
     for token in gt.get_content():
+        top_n = " ".join([i[0] for i in token.data]) if len(token.data) < 10 else " ".join([token.data[i][0] for i in range(10)])
         table.add_row(token.original_token.replace("\n", r"[\n]"),
                       str(token.nth) if token.nth != -1 else "ε",
                       f"{token.probability:.8f}",
-                      " ".join([token.data[i][0] for i in range(10)]))
+                      top_n)
     console = Console()
     console.print(table)
 
 
 def print_color_gradient():
+    print("Smallest entropy")
     for c in COLOR_GRADIENT:
-        print(f"[{c}]███[/]")
+        print(f"[{c}]██████[/]")
+    print("Highest entropy")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = get_cli_args()
     input_file = args.input if args.input else "/dev/stdin"
     output_file = args.output if args.output else "/dev/stdout"

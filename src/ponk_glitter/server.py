@@ -54,10 +54,10 @@ def static_route(path):
 # API
 
 @cache
-def glitter_text(text_to_glitter: str, model_name: str) -> str:
+def glitter_text(text_to_glitter: str, model_name: str, color_mode: str) -> str:
     model = MODELS[model_name]
     glittered_text = model.glitter_text(text_to_glitter)
-    return glittered_text.to_html()
+    return glittered_text.to_html(color_mode=color_mode)
 
 
 @app.route("/", methods=["POST"])

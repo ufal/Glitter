@@ -100,10 +100,10 @@ class GlitteredText:
     def to_json(self):
         return json.dumps(self.to_dict())
 
-    def to_html(self) -> str:
+    def to_html(self, color_mode="heatmap") -> str:
         output = '<div class="glittered-text">'
         for token in self.content:
-            output += token.to_html()
+            output += token.to_html(color_mode)
         return output + "</div>"
 
     def to_dict(self):

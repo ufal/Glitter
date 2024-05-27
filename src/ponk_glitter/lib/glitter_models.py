@@ -80,6 +80,9 @@ class GlitterModel:
     def __text_preprocessing__(self, text: str) -> str:
         return text
 
+    def __glittered_text_postprocessing__(self, glittered_text: GlitteredText) -> GlitteredText:
+        return glittered_text
+
 
 class GlitterUnmaskingModel(GlitterModel):
 
@@ -138,7 +141,7 @@ class GlitterUnmaskingModel(GlitterModel):
                               description="Glittering...",
                               total=len(tokenized_text)):
             gt.append(self.glitter_masked_token(ot, tmcw, top_k=top_k))
-        return gt
+        return self.__glittered_text_postprocessing__(gt)
 
 
 

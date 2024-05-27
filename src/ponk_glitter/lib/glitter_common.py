@@ -1,14 +1,14 @@
+import json
 from typing import List
 
-from torch import torch
 from jinja2 import Template
-import json
+from torch import torch
 
 
 class GlitteredToken:
     __HEATMAP_CATEGORIES = tuple(enumerate([1, 3, 5, 10, 15, 25, 50, 75, 100,
-                            250, 500, 1000, 5000, 10000, 15000, 20000]))
-    __SIMPLE_CATEGORY = ((0,1), (3, 10), (7, 100), (10, 1000), (14, 10000))
+                                            250, 500, 1000, 5000, 10000, 15000, 20000]))
+    __SIMPLE_CATEGORY = ((0, 1), (3, 10), (7, 100), (10, 1000), (14, 10000))
     # from cold to hot
     __HEATMAP_TERMINAL_COLORS = ["blue1", "dodger_blue1", "deep_sky_blue3", "cyan1",
                                  "spring_green1", "green1", "chartreuse1", "yellow1",
@@ -31,7 +31,6 @@ class GlitteredToken:
             </div>
     '''.strip()
 
-
     def __init__(self, original_token: str, raw_values):
         self.probability = 0
         self.original_token = original_token
@@ -44,7 +43,6 @@ class GlitteredToken:
                 self.nth = n
                 break
 
-
     def to_dict(self):
         return {
             "original_token": self.original_token,
@@ -53,8 +51,6 @@ class GlitteredToken:
             "top_5": self.data[:5]
         }
 
-
-
     def __get_heatmap_color_index__(self, color_map=__HEATMAP_CATEGORIES) -> int:
         color_index = 15
         for i, category in color_map:
@@ -62,7 +58,6 @@ class GlitteredToken:
                 color_index = i
                 break
         return color_index
-
 
     def to_html(self, color_mode="heatmap"):
         color_mode = color_mode.lower()
@@ -136,29 +131,27 @@ class GlitteredText:
         return item in self.content
 
 
-
 def convert_tokenized_text_to_tensor(tokenized_text: {str: [int]}) -> {str: torch.Tensor}:
     return {key: torch.tensor([value]) for key, value in tokenized_text.items()}
 
 
-def get_top_k_tokens(logits: list, tokenizer, top_k: int,) -> [(str, float)]:
-        # Get the probabilities of the last token
-        # Create list of tuples with the index(token ID) and its probability
-        indexed_probs = [(index, p) for index, p in enumerate(logits)]
-        # Sort the list by probability
-        indexed_probs.sort(key=lambda x: x[1], reverse=True)
-        # Get the top k probabilities
-        probs_top_k = indexed_probs[:top_k]
-        # Create list of tuples with the token and its probability
-        str_prob = [(tokenizer.decode([index]), p) for index, p in probs_top_k]
-        return str_prob
+def get_top_k_tokens(logits: list, tokenizer, top_k: int, ) -> [(str, float)]:
+    # Get the probabilities of the last token
+    # Create list of tuples with the index(token ID) and its probability
+    indexed_probs = [(index, p) for index, p in enumerate(logits)]
+    # Sort the list by probability
+    indexed_probs.sort(key=lambda x: x[1], reverse=True)
+    # Get the top k probabilities
+    probs_top_k = indexed_probs[:top_k]
+    # Create list of tuples with the token and its probability
+    str_prob = [(tokenizer.decode([index]), p) for index, p in probs_top_k]
+    return str_prob
 
 
 def normalize_glittered_text_with_subword_tokens(glittered_text: GlitteredText) -> GlitteredText:
     for token in glittered_text.get_content():
         if token.original_token.startswith("##"):
-           token.original_token = token.original_token[2:]
+            token.original_token = token.original_token[2:]
         else:
-          token.original_token = " " + token.original_token
+            token.original_token = " " + token.original_token
     return glittered_text
-

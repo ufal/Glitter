@@ -69,7 +69,7 @@ class TokenizedMaskedContextWindow(ContextWindow):
     tokenized text (list of integers). It appends a mask token to the end of the window.
     """
 
-    def __init__(self, tokenized_text: [int], size: int, mask_token: int = 103, csl_token: int = 0):
+    def __init__(self, tokenized_text: [int], size: int, mask_token: int = 103):
         super().__init__(tokenized_text, size)
         self.tokenized_text: [int] = tokenized_text
         self.size: int = size
@@ -105,4 +105,3 @@ class TokenizedMaskedContextWindow(ContextWindow):
 
     def __repr__(self):
         return repr(self.tokenized_text)
-

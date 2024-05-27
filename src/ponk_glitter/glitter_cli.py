@@ -3,8 +3,8 @@ from rich import print
 from rich.console import Console
 from rich.table import Table
 
-from lib.glitter_common import GlitteredText
 from lib.arguments import get_cli_args
+from lib.glitter_common import GlitteredText
 from lib.glitter_models import AVAILABLE_MODELS, load_models
 
 COLOR_GRADIENT = ["cornsilk1",
@@ -30,7 +30,8 @@ def print_table_of_glittered_text(gt: GlitteredText, title="") -> None:
     table.add_column("Probability", justify="right")
     table.add_column("Top results", justify="right")
     for token in gt.get_content():
-        top_n = " ".join([i[0] for i in token.data]) if len(token.data) < 10 else " ".join([token.data[i][0] for i in range(10)])
+        top_n = " ".join([i[0] for i in token.data]) if len(token.data) < 10 else " ".join(
+            [token.data[i][0] for i in range(10)])
         table.add_row(token.original_token.replace("\n", r"[\n]"),
                       str(token.nth) if token.nth != -1 else "ε",
                       f"{token.probability:.8f}",
@@ -78,4 +79,3 @@ if __name__ == "__main__":
         print_color_gradient()
         print("")
         print(str(gt))
-

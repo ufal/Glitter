@@ -1,5 +1,4 @@
 import argparse
-import os
 
 
 def get_server_args():
@@ -49,4 +48,3 @@ def get_cli_args():
                         help="name of model you want to use to glitter text (default: Robeczech)")
 
     return parser.parse_args()
-

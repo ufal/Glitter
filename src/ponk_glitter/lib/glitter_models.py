@@ -1,13 +1,11 @@
-from typing import List
+from random import choice
 
-from torch import torch
+from rich import print
+from rich.progress import track
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType
 
-from rich.progress import track
-from rich import print
-
-from lib.glitter_common import *
 from lib.context_window import TokenizedMaskedContextWindow
+from lib.glitter_common import *
 
 logging.set_verbosity(logging.CRITICAL)
 
@@ -16,9 +14,10 @@ AVAILABLE_MODELS = {}
 
 def register_model(name):
     def decorator(cls):
-        #print(f" * Registered model {cls} with name {name}")
+        # print(f" * Registered model {cls} with name {name}")
         AVAILABLE_MODELS[name] = cls
         return cls
+
     return decorator
 
 
@@ -91,14 +90,14 @@ class GlitterUnmaskingModel(GlitterModel):
                  model_path: str,
                  context_window_size: int = 100,
                  top_k=None
-                ) -> None:
+                 ) -> None:
         super().__init__(name,
                          lang,
                          context_window_size,
                          top_k)
 
         self.model_path = model_path
-        self.model = AutoModelForMaskedLM.from_pretrained(model_path) #.to(self.device)
+        self.model = AutoModelForMaskedLM.from_pretrained(model_path)  # .to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.pipeline = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer)
 
@@ -106,12 +105,10 @@ class GlitterUnmaskingModel(GlitterModel):
             top_k = self.model.config.vocab_size
         self.top_k = top_k
 
-
-
-    #@cache # dict is not hashable
+    # @cache # dict is not hashable
     def glitter_masked_token(self, original_token: int,
                              masked_tokenized_text: {str: TensorType},
-                             top_k:int ) -> GlitteredToken:
+                             top_k: int) -> GlitteredToken:
         masked_tokenized_text = convert_tokenized_text_to_tensor(masked_tokenized_text)
         with torch.no_grad():
             results = self.model(**masked_tokenized_text).logits
@@ -122,8 +119,7 @@ class GlitterUnmaskingModel(GlitterModel):
         top_tokens = get_top_k_tokens(probs, self.tokenizer, top_k)
         return GlitteredToken(self.tokenizer.decode(original_token), top_tokens)
 
-
-    def glitter_text(self, text: str, top_k:int=None) -> GlitteredText:
+    def glitter_text(self, text: str, top_k: int = None) -> GlitteredText:
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k
@@ -143,15 +139,23 @@ class GlitterUnmaskingModel(GlitterModel):
             gt.append(self.glitter_masked_token(ot, tmcw, top_k=top_k))
         return self.__glittered_text_postprocessing__(gt)
 
-
-
     def generate_text(self, prompt: str, length: int = 20, top_k: int = 50) -> str:
         text = prompt
         for _ in track(range(length), description="Generating...", total=length):
             new_token = choice(self.pipe(text + " [MASK]", top_k=top_k))["token_str"]
             text += " " if new_token == "[SEP]" else new_token
-        for st in self.SPECIAL_TOKENS:
-            text = text.replace(st, "")
         return text
 
 
+class GlitterGenerativeModel(GlitterModel):
+
+    def __init__(self, name: str,
+                 lang: str,
+                 model_path: str,
+                 context_window_size: int = 100,
+                 top_k=None
+                 ) -> None:
+        super().__init__(name,
+                         lang,
+                         context_window_size,
+                         top_k)

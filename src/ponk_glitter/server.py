@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-from flask import Flask, jsonify, send_from_directory, request, render_template
+from flask import Flask, send_from_directory, request, render_template
 import logging
 from functools import cache
 
 from lib.arguments import get_server_args
-from lib.glitter_common import GlitteredText
-from lib.glitter_models import AVAILABLE_MODELS, load_models
+from lib.glitter_models import load_models
 
 MODELS = load_models(logging=True)
 COLOR_MODES = ("heatmap", "simple")
@@ -26,9 +25,9 @@ def render_index_page(text_to_glitter="",
                       color_modes=COLOR_MODES,
                       selected_model=None,
                       selected_color_mode=None):
-    if selected_model == None and models:
+    if selected_model is None and models:
         selected_model = tuple(models)[0]
-    if selected_color_mode == None and color_modes:
+    if selected_color_mode is None and color_modes:
         selected_color_mode = COLOR_MODES[0]
 
     return render_template("index.html",
@@ -51,12 +50,11 @@ def static_route(path):
     return send_from_directory("static", path)
 
 
-
 ######################################################################################
 # API
 
 @cache
-def glitter_text(text_to_glitter: str, model_name: str, color_mode: str) -> str:
+def glitter_text(text_to_glitter: str, model_name: str) -> str:
     model = MODELS[model_name]
     glittered_text = model.glitter_text(text_to_glitter)
     return glittered_text.to_html()

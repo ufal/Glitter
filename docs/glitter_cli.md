@@ -93,7 +93,7 @@ cat kabat_kdo_vi_jestli.txt | ./glitter_cli.py --model robeczech --to-table
 results
 ```
 ┏━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Word    ┃  Nth  ┃ Probability ┃                                                   Top 10 ┃
+┃ Word    ┃  Nth  ┃ Probability ┃                                              Top results ┃
 ┡━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
 │ [CLS]   │   1   │  0.99972230 │               [CLS] [SEP] ero so min seni um s ště proti │
 │ K       │  17   │  0.00000004 │                       [SEP]  P  V [CLS]  Ř  "  I -  B  J │

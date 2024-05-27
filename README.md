@@ -1,6 +1,10 @@
 # **PONK:** Glitter
 
 
+## Usage
+- `make download-models` - downloads natively supported models
+- `make`/`make run` - runs glitter server on localhost with port 4000
+
 ## Documetation
 - ### [Glitter CLI](https://gitlab.mff.cuni.cz/teaching/nprg045/kvapilikova/ponk-glitter/-/blob/master/docs/glitter_cli.md?ref_type=heads)
 - ### Glitter server TODO

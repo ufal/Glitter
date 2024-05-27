@@ -7,13 +7,13 @@ def get_server_args():
     parser.add_argument("--debug",
                         default=False,
                         action="store_true",
-                        help="Run server in debug mode")
+                        help="run server in debug mode")
     parser.add_argument("--host",
                         default="127.0.0.1",
-                        help="Address to bind server to (0.0.0.0 for nonlocal use)")
+                        help="address to bind server to (default:localhost) (0.0.0.0 for nonlocal use)")
     parser.add_argument("--port",
                         default="4000",
-                        help="Port to launch UI and API (default:4000)")
+                        help="port to launch UI and API (default:4000)")
     return parser.parse_args()
 
 

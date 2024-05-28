@@ -7,11 +7,11 @@ from torch import torch
 
 
 class GlitteredToken:
-    __HEATMAP_CATEGORIES = tuple(enumerate([1, 3, 5, 10, 15, 25, 50, 75, 100,
+    HEATMAP_CATEGORIES = tuple(enumerate([1, 3, 5, 10, 15, 25, 50, 75, 100,
                                             250, 500, 1000, 5000, 10000, 15000, 20000]))
-    __SIMPLE_CATEGORY = ((0, 1), (3, 10), (7, 100), (10, 1000), (14, 10000))
+    SIMPLE_CATEGORY = ((0, 1), (3, 10), (7, 100), (10, 1000), (14, 10000))
     # from cold to hot
-    __HEATMAP_TERMINAL_COLORS = ["blue1", "dodger_blue1", "deep_sky_blue3", "cyan1",
+    HEATMAP_TERMINAL_COLORS = ["blue1", "dodger_blue1", "deep_sky_blue3", "cyan1",
                                  "spring_green1", "green1", "chartreuse1", "yellow1",
                                  "light_goldenrod1", "gold1", "orange1", "orange_red1",
                                  "red1", "deep_pink1", "magenta1", "plum1"]
@@ -52,7 +52,7 @@ class GlitteredToken:
             "top_5": self.data[:5]
         }
 
-    def __get_heatmap_color_index__(self, color_map=__HEATMAP_CATEGORIES) -> int:
+    def __get_heatmap_color_index__(self, color_map=HEATMAP_CATEGORIES) -> int:
         color_index = 15
         for i, category in color_map:
             if self.nth <= category:
@@ -63,9 +63,9 @@ class GlitteredToken:
     def to_html(self, color_mode="heatmap"):
         color_mode = color_mode.lower()
         if color_mode == "simple":
-            color_map = self.__SIMPLE_CATEGORY
+            color_map = self.SIMPLE_CATEGORY
         else:
-            color_map = self.__HEATMAP_CATEGORIES
+            color_map = self.HEATMAP_CATEGORIES
 
         color_index = self.__get_heatmap_color_index__(color_map)
 
@@ -82,7 +82,7 @@ class GlitteredToken:
 
     def __str__(self):
         # rich color output
-        return f"[{self.__HEATMAP_TERMINAL_COLORS[self.__get_heatmap_color_index__()]}]{self.original_token}[/]"
+        return f"[{self.HEATMAP_TERMINAL_COLORS[self.__get_heatmap_color_index__()]}]{self.original_token}[/]"
 
 
 class GlitteredText:

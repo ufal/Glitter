@@ -7,6 +7,10 @@ from torch import torch
 
 
 class GlitteredToken:
+    """
+    This class represents a token that has been glittered by a model.
+    It contains the original token, the probability of the token, the position of the token in the top-k list
+    """
     HEATMAP_CATEGORIES = tuple(enumerate([1, 3, 5, 10, 15, 25, 50, 75, 100,
                                             250, 500, 1000, 5000, 10000, 15000, 20000]))
     SIMPLE_CATEGORY = ((0, 1), (3, 10), (7, 100), (10, 1000), (14, 10000))
@@ -86,6 +90,10 @@ class GlitteredToken:
 
 
 class GlitteredText:
+    """
+    This class represents a text that has been glittered by a model.
+    It contains a list of GlitteredToken objects and the models that have been used to glitter the text.
+    """
 
     def __init__(self, models: List[str]):
         self.used_models = models
@@ -133,6 +141,9 @@ class GlitteredText:
 
 
 def convert_tokenized_text_to_tensor(tokenized_text: {str: [int]}) -> {str: torch.Tensor}:
+    """
+    Convert a tokenized text to a Pytorch tensor
+    """
     return {key: torch.tensor([value]) for key, value in tokenized_text.items()}
 
 
@@ -150,6 +161,10 @@ def get_top_k_tokens(logits: list, tokenizer, top_k: int, ) -> [(str, float)]:
 
 
 def normalize_glittered_text_with_subword_tokens(glittered_text: GlitteredText) -> GlitteredText:
+    """
+    Normalize the GlitteredText object by removing the '##' from the subword tokens
+    and adding a space before the token.
+    """
     for token in glittered_text.get_content():
         if token.original_token.startswith("##"):
             token.original_token = token.original_token[2:]

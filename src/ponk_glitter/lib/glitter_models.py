@@ -47,6 +47,9 @@ def load_models(logging=False):
 
 
 class GlitterModel:
+    """
+    Base class for Glitter models. All Glitter models should inherit from this class.
+    """
 
     def __init__(self, name: str, lang: str, context_window_size: int = 5, sample_size: int = 1000) -> None:
         self.name: str = name
@@ -84,6 +87,9 @@ class GlitterModel:
 
 
 class GlitterUnmaskingModel(GlitterModel):
+    """
+    Base class for Glitter models of the unmasking type.
+    """
 
     def __init__(self, name: str,
                  lang: str,
@@ -148,6 +154,10 @@ class GlitterUnmaskingModel(GlitterModel):
 
 
 class GlitterGenerativeModel(GlitterModel):
+    """
+    Base class for Glitter models of the GPT type.
+    WIP
+    """
 
     def __init__(self, name: str,
                  lang: str,

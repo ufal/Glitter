@@ -1,4 +1,5 @@
 import json
+import html
 from typing import List
 
 from jinja2 import Template
@@ -71,10 +72,10 @@ class GlitteredToken:
         # Render the template with the context
         output = Template(self.__HTML_TEMPLATE).render(
             heatmap_color_index=color_index,
-            original_token=self.original_token.replace(" ", "&nbsp;"),
+            original_token=html.escape(self.original_token).replace(" ", "&nbsp;"),
             probability=f"{self.probability:.8f}",
             nth=self.nth,
-            data=[f"{token} ({prob:.8f})" for token, prob in self.data[:5]]
+            data=[f"{html.escape(token)} ({prob:.8f})" for token, prob in self.data[:5]]
         )
 
         return output

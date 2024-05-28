@@ -41,10 +41,10 @@ def print_table_of_glittered_text(gt: GlitteredText, title="") -> None:
 
 
 def print_color_gradient():
-    print("Smallest entropy")
+    print("Smallest entropy", end="")
     for c in COLOR_GRADIENT:
-        print(f"[{c}]██████[/]")
-    print("Highest entropy")
+        print(f"[{c}]███[/]", end="")
+    print("Highest entropy", end="")
 
 
 if __name__ == "__main__":

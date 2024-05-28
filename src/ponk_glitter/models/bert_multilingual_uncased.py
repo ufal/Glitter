@@ -2,7 +2,7 @@ from lib.glitter_models import GlitterUnmaskingModel, register_model
 from lib.glitter_common import normalize_glittered_text_with_subword_tokens
 from unidecode import unidecode
 
-@register_model("bert_multilingual_uncased")
+@register_model("bert-multilingual-uncased")
 class BertMultilingualUncased(GlitterUnmaskingModel):
 
     def __init__(self,

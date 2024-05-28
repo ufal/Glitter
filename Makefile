@@ -18,6 +18,9 @@ download-models:
 	echo "    Clonning FERNET"
 	git clone https://huggingface.co/fav-kky/FERNET-C5 ./src/ponk_glitter/models/FERNET-C5
 	cd ./src/ponk_glitter/models/FERNET-C5 && git restore --source=HEAD :/
+	echo "    Clonning Legal Czech RoBERTa"
+	git clone https://huggingface.co/joelniklaus/legal-czech-roberta-base
+	cd ./src/ponk_glitter/models/legal-czech-roberta-base && git restore --source=HEAD :/
 
 
 $(VENV)/bin/activate: requirements.txt

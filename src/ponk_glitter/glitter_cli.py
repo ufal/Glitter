@@ -4,7 +4,7 @@ from rich.console import Console
 from rich.table import Table
 
 from lib.arguments import get_cli_args
-from lib.glitter_common import GlitteredText
+from lib.glitter_common import GlitteredText, GlitteredToken
 from lib.glitter_models import get_registered_models
 
 COLOR_GRADIENT = ["cornsilk1",
@@ -41,10 +41,10 @@ def print_table_of_glittered_text(gt: GlitteredText, title="") -> None:
 
 
 def print_color_gradient():
-    print("Smallest entropy", end="")
-    for c in COLOR_GRADIENT:
+    print("Smallest entropy", end=" ")
+    for c in GlitteredToken.HEATMAP_TERMINAL_COLORS:
         print(f"[{c}]███[/]", end="")
-    print("Highest entropy", end="")
+    print(" Highest entropy")
 
 ########################################################################################
 

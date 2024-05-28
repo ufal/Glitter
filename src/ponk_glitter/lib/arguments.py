@@ -46,5 +46,9 @@ def get_cli_args():
     parser.add_argument("--model",
                         default="Robeczech",
                         help="name of model you want to use to glitter text (default: Robeczech)")
+    parser.add_argument("--list-models",
+                        default=False,
+                        action="store_true",
+                        help="list available models")
 
     return parser.parse_args()

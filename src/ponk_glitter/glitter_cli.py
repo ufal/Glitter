@@ -5,7 +5,7 @@ from rich.table import Table
 
 from lib.arguments import get_cli_args
 from lib.glitter_common import GlitteredText
-from lib.glitter_models import AVAILABLE_MODELS, load_models
+from lib.glitter_models import get_registered_models
 
 COLOR_GRADIENT = ["cornsilk1",
                   "wheat1",
@@ -46,14 +46,26 @@ def print_color_gradient():
         print(f"[{c}]███[/]", end="")
     print("Highest entropy", end="")
 
+########################################################################################
+
+def cmd_list_models():
+    print("Available models:")
+    for model in AVAILABLE_MODELS:
+        print(f"  {model}")
+    exit(0)
+
 
 if __name__ == "__main__":
     args = get_cli_args()
+    AVAILABLE_MODELS = get_registered_models()
+
+    if args.list_models:
+        cmd_list_models()
+
     input_file = args.input if args.input else "/dev/stdin"
     output_file = args.output if args.output else "/dev/stdout"
     args.model = args.model.lower()
 
-    load_models()
 
     if args.model not in AVAILABLE_MODELS:
         print("Model not found")

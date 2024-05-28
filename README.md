@@ -1,9 +1,11 @@
 # **PONK:** Glitter
-
+Glitter is set of tools for visualising lexical surprise by analysing entropy of outputs
+of large language models. This can be used for research of text readability.
 
 ## Usage
 - `make download-models` - downloads natively supported models
 - `make`/`make run` - runs glitter server on localhost with port 4000
+
 
 ## Documetation
 - ### [Glitter CLI](https://gitlab.mff.cuni.cz/teaching/nprg045/kvapilikova/ponk-glitter/-/blob/master/docs/glitter_cli.md?ref_type=heads)

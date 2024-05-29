@@ -1,5 +1,4 @@
 from lib.glitter_models import GlitterUnmaskingModel, register_model
-from lib.glitter_common import GlitteredText
 
 
 @register_model("legal-czech-roberta")

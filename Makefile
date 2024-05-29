@@ -29,5 +29,5 @@ $(VENV)/bin/activate: requirements.txt
 
 
 run: $(VENV)/bin/activate
-	cd ./src/ponk_glitter/ && ../../$(PYTHON) server.py --host "0.0.0.0" --port "8000"
+	cd ./src/ponk_glitter/ && ../../$(PYTHON) server.py
 

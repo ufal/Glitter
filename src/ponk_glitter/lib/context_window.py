@@ -1,6 +1,6 @@
 class ContextWindow:
     """
-    This class is a generator that takes a text and a window size as input and 
+    This class is a generator that takes a text and a window size as input and
     returns a window of words of the given size. It starts with window of size 1,
     and it grows to defined size.
     """

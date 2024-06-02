@@ -101,7 +101,7 @@ class GlitterUnmaskingModel(GlitterModel):
                          lang,
                          context_window_size,
                          top_k)
-
+        self.model_type = "unmasking"
         self.model_path = model_path
         self.model = AutoModelForMaskedLM.from_pretrained(model_path)  # .to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
@@ -169,3 +169,5 @@ class GlitterGenerativeModel(GlitterModel):
                          lang,
                          context_window_size,
                          top_k)
+        self.model_type = "generative"
+        self.model_path = model_path

@@ -20,8 +20,6 @@ class ModelClass(GlitterUnmaskingModel):
                          model_path="models/robeczech-base",       # Path from projects root to directory wi model files
                          context_window_size=context_window_size,  # Size of default context window
                          top_k=top_k)                              # Size of list with top results (if is None than it is set to size of model vocab)
-
-
 ```
 
 There are also special functions. Their implementation is not mandatory:

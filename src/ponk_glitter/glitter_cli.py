@@ -85,6 +85,9 @@ if __name__ == "__main__":
     elif args.to_dict:
         with open(output_file, "w") as file:
             file.write(str(gt.to_dict()))
+    elif args.to_tex:
+        with open(output_file, "w") as file:
+            file.write(gt.to_tex())
     elif args.to_table:
         print_table_of_glittered_text(gt)
     else:

@@ -36,6 +36,10 @@ def get_cli_args():
                                 default=False,
                                 action="store_true",
                                 help="export data to table")
+    export_options.add_argument("--to-tex",
+                                default=False,
+                                action="store_true",
+                                help="export data as TeX macros")
 
     parser.add_argument("--output",
                         default="/dev/stdout",

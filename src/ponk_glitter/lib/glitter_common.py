@@ -84,6 +84,9 @@ class GlitteredToken:
 
         return output
 
+    def to_tex(self):
+        return f"\\hm{ 'ABCDEFGHIJKLMNOP'[self.__get_heatmap_color_index__()]}{{{ self.original_token }}}"
+
     def __str__(self):
         # rich color output
         return f"[{self.HEATMAP_TERMINAL_COLORS[self.__get_heatmap_color_index__()]}]{self.original_token}[/]"
@@ -120,6 +123,10 @@ class GlitteredText:
             "content": [token.to_dict() for token in self.content],
             "used_models": self.used_models
         }
+
+    def to_tex(self):
+        return "".join([token.to_tex() for token in self.content])
+
 
     def __str__(self):
         return "".join([str(token) for token in self.content])

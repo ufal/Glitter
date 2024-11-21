@@ -1,6 +1,6 @@
-import json
 import html
-from typing import List, Tuple
+import json
+from typing import List, Tuple, Dict
 
 from jinja2 import Template
 from torch import torch
@@ -12,13 +12,13 @@ class GlitteredToken:
     It contains the original token, the probability of the token, the position of the token in the top-k list
     """
     HEATMAP_CATEGORIES = tuple(enumerate([1, 3, 5, 10, 15, 25, 50, 75, 100,
-                                            250, 500, 1000, 5000, 10000, 15000, 20000]))
+                                          250, 500, 1000, 5000, 10000, 15000, 20000]))
     SIMPLE_CATEGORY = ((0, 1), (3, 10), (7, 100), (10, 1000), (14, 10000))
     # from cold to hot
     HEATMAP_TERMINAL_COLORS = ["blue1", "dodger_blue1", "deep_sky_blue3", "cyan1",
-                                 "spring_green1", "green1", "chartreuse1", "yellow1",
-                                 "light_goldenrod1", "gold1", "orange1", "orange_red1",
-                                 "red1", "deep_pink1", "magenta1", "plum1"]
+                               "spring_green1", "green1", "chartreuse1", "yellow1",
+                               "light_goldenrod1", "gold1", "orange1", "orange_red1",
+                               "red1", "deep_pink1", "magenta1", "plum1"]
 
     __HTML_TEMPLATE = '''
     <div class="glitter-token">
@@ -48,7 +48,7 @@ class GlitteredToken:
                 self.nth = n
                 break
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         return {
             "original_token": self.original_token,
             "probability": self.probability,
@@ -64,7 +64,7 @@ class GlitteredToken:
                 break
         return color_index
 
-    def to_html(self, color_mode="heatmap"):
+    def to_html(self, color_mode="heatmap") -> str:
         color_mode = color_mode.lower()
         if color_mode == "simple":
             color_map = self.SIMPLE_CATEGORY
@@ -73,7 +73,6 @@ class GlitteredToken:
 
         color_index = self.__get_heatmap_color_index__(color_map)
 
-        print(self.data)
         # Render the template with the context
         output = Template(self.__HTML_TEMPLATE).render(
             heatmap_color_index=color_index,
@@ -85,10 +84,10 @@ class GlitteredToken:
 
         return output
 
-    def to_tex(self):
-        return f"\\hm{ 'ABCDEFGHIJKLMNOP'[self.__get_heatmap_color_index__()]}{{{ self.original_token }}}"
+    def to_tex(self) -> str:
+        return f"\\hm{'ABCDEFGHIJKLMNOP'[self.__get_heatmap_color_index__()]}{{{self.original_token}}}"
 
-    def __str__(self):
+    def __str__(self) -> str:
         # rich color output
         return f"[{self.HEATMAP_TERMINAL_COLORS[self.__get_heatmap_color_index__()]}]{self.original_token}[/]"
 
@@ -127,7 +126,6 @@ class GlitteredText:
 
     def to_tex(self):
         return "".join([token.to_tex() for token in self.content])
-
 
     def __str__(self):
         return "".join([str(token) for token in self.content])

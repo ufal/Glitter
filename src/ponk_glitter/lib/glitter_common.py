@@ -1,6 +1,6 @@
 import json
 import html
-from typing import List
+from typing import List, Tuple
 
 from jinja2 import Template
 from torch import torch
@@ -36,15 +36,15 @@ class GlitteredToken:
             </div>
     '''.strip()
 
-    def __init__(self, original_token: str, raw_values):
-        self.probability = 0
+    def __init__(self, original_token: str, raw_values: List[Tuple[str, float]]):
+        self.probability = 0.0
         self.original_token = original_token
         self.data = raw_values
         self.nth = -1
         self.vocab_size = len(raw_values)
         for n, (token, prob) in enumerate(raw_values, start=1):
             if token.strip() == original_token.strip():
-                self.probability = prob
+                self.probability = float(prob)
                 self.nth = n
                 break
 
@@ -73,6 +73,7 @@ class GlitteredToken:
 
         color_index = self.__get_heatmap_color_index__(color_map)
 
+        print(self.data)
         # Render the template with the context
         output = Template(self.__HTML_TEMPLATE).render(
             heatmap_color_index=color_index,

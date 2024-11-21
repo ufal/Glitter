@@ -1,3 +1,5 @@
+from torch import tensor
+
 class ContextWindow:
     """
     This class is a generator that takes a text and a window size as input and
@@ -8,7 +10,7 @@ class ContextWindow:
     def __init__(self, tokenized_text: [str], size: int):
         self.tokenized_text = tokenized_text
         self.size = size
-        self.index = 0
+        self.index = 1
 
     def __get_window__(self, index: int):
         if self.index < self.size:
@@ -38,7 +40,7 @@ class ContextWindow:
 
 class MaskedContextWindow(ContextWindow):
     """
-    This class inherits from ContextWindow. The differece is that it appends a mask token
+    This class inherits from ContextWindow. The difference is that it appends a mask token
     to the end of the window.
     """
 
@@ -63,7 +65,50 @@ class MaskedContextWindow(ContextWindow):
         return repr(self.mask)
 
 
-class TokenizedMaskedContextWindow(ContextWindow):
+class TokenizedContextWindow(ContextWindow):
+    """
+    This class inherits from ContextWindow. The difference is that it works on to
+    tokenized text (list of integers).
+    """
+
+    def __init__(self, tokenized_text: [int], size: int):
+        super().__init__(tokenized_text, size)
+        self.tokenized_text: [int] = tokenized_text
+        self.size: int = size
+        self.index: int = 1
+    
+    def __create_output__(self, window: [int]):
+        return {"input_ids": window.unsqueeze(0), "attention_mask": tensor([[1] * (len(window))])}
+
+    def __get_window__(self, index: int):
+        if self.index < self.size:
+            window = self.tokenized_text[0: index]
+            return self.__create_output__(window)
+        else:
+            window = self.tokenized_text[self.index - self.size: index]
+            return self.__create_output__(window)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index >= len(self.tokenized_text):
+            raise StopIteration
+        window = self.__get_window__(self.index)
+        self.index += 1
+        return window
+
+    def __len__(self):
+        return len(self.tokenized_text)
+
+    def __getitem__(self, index):
+        return self.__get_window__(index)
+
+    def __repr__(self):
+        return repr(self.tokenized_text)
+
+
+class TokenizedMaskedContextWindow(TokenizedContextWindow):
     """
     This class inherits from ContextWindow. The difference is that it works on to 
     tokenized text (list of integers). It appends a mask token to the end of the window.
@@ -87,21 +132,3 @@ class TokenizedMaskedContextWindow(ContextWindow):
             window = self.tokenized_text[self.index - self.size: index] + [self.mask_token]
             return self.__create_output__(window)
 
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.index >= len(self.tokenized_text):
-            raise StopIteration
-        window = self.__get_window__(self.index)
-        self.index += 1
-        return window
-
-    def __len__(self):
-        return len(self.tokenized_text)
-
-    def __getitem__(self, index):
-        return self.__get_window__(index)
-
-    def __repr__(self):
-        return repr(self.tokenized_text)

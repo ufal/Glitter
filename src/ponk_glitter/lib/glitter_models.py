@@ -1,10 +1,14 @@
 from random import choice
+from typing import Optional
 
+import torch
+import torch.nn.functional as F
 from rich import print
 from rich.progress import track
-from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType
+from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType, GPT2LMHeadModel, \
+    GPT2Tokenizer
 
-from lib.context_window import TokenizedMaskedContextWindow
+from lib.context_window import TokenizedMaskedContextWindow, TokenizedContextWindow
 from lib.glitter_common import *
 
 logging.set_verbosity(logging.CRITICAL)
@@ -27,7 +31,6 @@ def get_registered_models():
         if module == "__init__.py" or module[-3:] != ".py":
             continue
         __import__(f"models.{module[:-3]}", locals(), globals())
-    del module
     return AVAILABLE_MODELS
 
 
@@ -51,7 +54,8 @@ class GlitterModel:
     Base class for Glitter models. All Glitter models should inherit from this class.
     """
 
-    def __init__(self, name: str, lang: str, context_window_size: int = 5, sample_size: int = 1000) -> None:
+    def __init__(self, name: str, lang: str, context_window_size: Optional[int] = 5,
+                 sample_size: Optional[int] = 1000) -> None:
         self.name: str = name
         self.lang: str = lang
         self.context_window_size: int = context_window_size
@@ -82,7 +86,8 @@ class GlitterModel:
     def __text_preprocessing__(self, text: str) -> str:
         return text
 
-    def __glittered_text_postprocessing__(self, glittered_text: GlitteredText) -> GlitteredText:
+    @staticmethod
+    def __glittered_text_postprocessing__(glittered_text: GlitteredText) -> GlitteredText:
         return glittered_text
 
 
@@ -163,7 +168,7 @@ class GlitterGenerativeModel(GlitterModel):
                  lang: str,
                  model_path: str,
                  context_window_size: int = 100,
-                 top_k=None
+                 top_k: Optional[int] = None
                  ) -> None:
         super().__init__(name,
                          lang,
@@ -171,3 +176,41 @@ class GlitterGenerativeModel(GlitterModel):
                          top_k)
         self.model_type = "generative"
         self.model_path = model_path
+        self.model = GPT2LMHeadModel.from_pretrained(model_path).eval()
+        self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
+
+    def glitter_token(self, original_token: int,
+                      tokenized_text: {str: TensorType},
+                      top_k: int) -> GlitteredToken:
+
+        # Forward pass through the model to get logits
+        with torch.no_grad():  # Disable gradient calculation for faster inference
+            outputs = self.model(**tokenized_text)
+
+            # Get logits for the last token in the sequence
+            next_token_logits = outputs.logits[:, -1, :]
+
+            # Apply softmax to get probabilities
+            probabilities = F.softmax(next_token_logits, dim=-1)
+
+            # Get the top k token probabilities and their indices
+            top_tokens = get_top_k_tokens(probabilities[-1], self.tokenizer, top_k)
+        return GlitteredToken(self.tokenizer.decode(original_token), top_tokens)
+
+    def glitter_text(self, text: str, top_k: int = None) -> GlitteredText:
+        text = self.__text_preprocessing__(text)
+        if top_k is None:
+            top_k = self.top_k
+        # Create a new empty GlitteredText object
+        gt = GlitteredText(models=[self.name])
+        tokenized_text = self.tokenizer.encode(text, return_tensors="pt")[-1]
+
+        for ot, tmcw in track(zip(tokenized_text,
+                                  TokenizedContextWindow(
+                                      tokenized_text,
+                                      self.context_window_size,
+                                  )),
+                              description="Glittering...",
+                              total=len(tokenized_text)):
+            gt.append(self.glitter_token(ot, tmcw, top_k=top_k))
+        return self.__glittered_text_postprocessing__(gt)

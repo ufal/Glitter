@@ -178,6 +178,7 @@ class GlitterGenerativeModel(GlitterModel):
         self.model_path = model_path
         self.model = GPT2LMHeadModel.from_pretrained(model_path).eval()
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
+        self.top_k = self.tokenizer.vocab_size
 
     def glitter_token(self, original_token: int,
                       tokenized_text: {str: TensorType},

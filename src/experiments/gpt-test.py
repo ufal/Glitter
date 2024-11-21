@@ -13,8 +13,6 @@ def predict_next_token_probabilities(text, top_k=10):
     # Tokenize the input text and convert to tensor
     inputs = tokenizer(text, return_tensors="pt")
     
-    print(inputs)
-    input("aaaaaaaaa")
     # Forward pass through the model to get logits
     with torch.no_grad():  # Disable gradient calculation for faster inference
         outputs = model(**inputs)
@@ -37,8 +35,10 @@ def predict_next_token_probabilities(text, top_k=10):
     return tokens_with_probs
 
 # Example usage
-text = "this is test"
+text = "Today is "
 predictions = predict_next_token_probabilities(text, top_k=5)
 print(predictions)
 for pred in predictions:
     print(f"Token: {pred['token']}, Probability: {pred['probability']}")
+
+

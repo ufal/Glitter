@@ -6,7 +6,7 @@ from functools import cache
 from lib.arguments import get_server_args
 from lib.glitter_models import load_models
 
-MODELS = load_models(logging=True)
+MODELS = load_models(verbose=True)
 COLOR_MODES = ("heatmap", "simple")
 
 app = Flask(__name__, static_folder="static")

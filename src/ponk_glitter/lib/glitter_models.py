@@ -34,17 +34,17 @@ def get_registered_models():
     return AVAILABLE_MODELS
 
 
-def load_models(logging=False):
+def load_models(verbose=False):
     get_registered_models()
     models = dict()
-    if logging:
+    if verbose:
         print(" * Models loaded:")
     for model_name in AVAILABLE_MODELS.keys():
         model = AVAILABLE_MODELS[model_name]()
         models[model.name] = model
-        if logging:
+        if verbose:
             print(f"   - {model.name}")
-    if len(models) == 0 and logging:
+    if len(models) == 0 and verbose:
         print(" * No models loaded.")
     return models
 

@@ -113,3 +113,8 @@ li {
 	display: block;
 }
 
+.glitter-token:hover {
+	outline-color: black;
+	outline-style: dashed;
+	outline-width: 2px;
+}

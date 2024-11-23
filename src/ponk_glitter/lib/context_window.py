@@ -1,5 +1,6 @@
 from torch import tensor
 
+
 class ContextWindow:
     """
     This class is a generator that takes a text and a window size as input and
@@ -76,7 +77,7 @@ class TokenizedContextWindow(ContextWindow):
         self.tokenized_text: [int] = tokenized_text
         self.size: int = size
         self.index: int = 1
-    
+
     def __create_output__(self, window: [int]):
         return {"input_ids": window.unsqueeze(0), "attention_mask": tensor([[1] * (len(window))])}
 
@@ -132,3 +133,53 @@ class TokenizedMaskedContextWindow(TokenizedContextWindow):
             window = self.tokenized_text[self.index - self.size: index] + [self.mask_token]
             return self.__create_output__(window)
 
+
+class GPTContextWindow(ContextWindow):
+    """
+    This class inherits from ContextWindow. It produces overlapping blocks of tokenized text.
+    """
+
+    def __init__(self, tokenized_text: [int], size: int):
+        super().__init__(tokenized_text, size)
+        self.tokenized_text: [int] = tokenized_text
+        self.size: int = size
+        self.index: int = 0
+        self.end_reached: bool = False
+
+    def __get_window__(self, index: int):
+        # first window
+        if self.index == 0:
+            if self.size >= len(self.tokenized_text):
+                self.end_reached = True
+                return self.tokenized_text
+            return self.tokenized_text[0: self.size]
+        # last window containing context length of self.size
+        elif self.index * self.size >= len(self.tokenized_text):
+            window = self.tokenized_text[-self.size:]
+            self.end_reached = True
+            return window
+        # window containing context length of self.size overlapping with the previous window
+        window_start = self.index * self.size - self.size // 2
+        return self.tokenized_text[window_start: window_start + self.size]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.end_reached:
+            raise StopIteration
+        window = self.__get_window__(self.index)
+        self.index += 1
+        return window
+
+    def __len__(self):
+        output = len(self.tokenized_text) // self.size
+        if len(self.tokenized_text) % self.size != 0:
+            output += 1
+        return output
+
+    def __getitem__(self, index):
+        return self.__get_window__(index)
+
+    def __repr__(self):
+        return repr(self.tokenized_text)

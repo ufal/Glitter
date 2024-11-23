@@ -160,6 +160,8 @@ class GPTContextWindow(ContextWindow):
             return window
         # window containing context length of self.size overlapping with the previous window
         window_start = self.index * self.size - self.size // 2
+        if window_start + self.size >= len(self.tokenized_text):
+            self.end_reached = True
         return self.tokenized_text[window_start: window_start + self.size]
 
     def __iter__(self):
@@ -173,8 +175,9 @@ class GPTContextWindow(ContextWindow):
         return window
 
     def __len__(self):
-        output = len(self.tokenized_text) // self.size
-        if len(self.tokenized_text) % self.size != 0:
+        # TODO: This is slow, find a better way to calculate the length
+        output = 0
+        for _ in GPTContextWindow(self.tokenized_text, self.size):
             output += 1
         return output
 

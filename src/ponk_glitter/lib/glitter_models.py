@@ -54,13 +54,16 @@ class GlitterModel:
     Base class for Glitter models. All Glitter models should inherit from this class.
     """
 
-    def __init__(self, name: str, lang: str, context_window_size: Optional[int] = 5,
+    def __init__(self, name: str,
+                 lang: str,
+                 context_window_size: Optional[int] = 100,
                  sample_size: Optional[int] = 1000) -> None:
         self.name: str = name
         self.lang: str = lang
         self.context_window_size: int = context_window_size
         self.top_k: int = sample_size
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model_type = "base"
 
     def glitter_masked_token(self, original_token: str, masked_context: str) -> GlitteredToken:
         """
@@ -89,6 +92,21 @@ class GlitterModel:
     @staticmethod
     def __glittered_text_postprocessing__(glittered_text: GlitteredText) -> GlitteredText:
         return glittered_text
+
+
+def categorize_models(models: Dict[str, GlitterModel]) -> Dict[str, List[GlitterModel]]:
+    categorized_models = dict()
+
+    for model_name in models.keys():
+        model = models[model_name]
+        if model.model_type not in categorized_models:
+            categorized_models[model.model_type] = []
+        categorized_models[model.model_type].append(model)
+
+    for model_type in categorized_models.keys():
+        categorized_models[model_type] = sorted(categorized_models[model_type], key=lambda x: x.name)
+
+    return categorized_models
 
 
 class GlitterUnmaskingModel(GlitterModel):

@@ -4,9 +4,10 @@ import logging
 from functools import cache
 
 from lib.arguments import get_server_args
-from lib.glitter_models import load_models
+from lib.glitter_models import load_models, categorize_models
 
 MODELS = load_models(verbose=True)
+CATEGORIZED_MODELS = categorize_models(MODELS)
 COLOR_MODES = ("heatmap", "simple")
 
 app = Flask(__name__, static_folder="static")
@@ -30,11 +31,12 @@ def render_index_page(text_to_glitter="",
     if selected_color_mode is None and color_modes:
         selected_color_mode = COLOR_MODES[0]
 
+
     return render_template("index.html",
                            text_to_glitter=text_to_glitter,
                            glittered_text=glittered_text,
                            color_modes=color_modes,
-                           models=models,
+                           categorized_models=CATEGORIZED_MODELS,
                            selected_model=selected_model,
                            selected_color_mode=selected_color_mode)
 

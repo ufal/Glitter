@@ -137,6 +137,7 @@ class TokenizedMaskedContextWindow(TokenizedContextWindow):
 class GPTContextWindow(ContextWindow):
     """
     This class inherits from ContextWindow. It produces overlapping blocks of tokenized text.
+    Window is tuple where first element is amount of relevant tokens from the end of window and second is the window.
     """
 
     def __init__(self, tokenized_text: [int], size: int):
@@ -151,18 +152,20 @@ class GPTContextWindow(ContextWindow):
         if self.index == 0:
             if self.size >= len(self.tokenized_text):
                 self.end_reached = True
-                return self.tokenized_text
-            return self.tokenized_text[0: self.size]
+                return len(self.tokenized_text), self.tokenized_text
+            return self.size, self.tokenized_text[0: self.size]
+
         # last window containing context length of self.size
-        elif self.index * self.size >= len(self.tokenized_text):
-            window = self.tokenized_text[-self.size:]
+        elif self.size + (self.index * (self.size // 2)) >= len(self.tokenized_text):
             self.end_reached = True
-            return window
+            end_i = self.size + (self.index - 1) * (self.size // 2)
+            return len(self.tokenized_text) - end_i, self.tokenized_text[-self.size:]
+
         # window containing context length of self.size overlapping with the previous window
-        window_start = self.index * self.size - self.size // 2
+        window_start = self.index * (self.size // 2)
         if window_start + self.size >= len(self.tokenized_text):
             self.end_reached = True
-        return self.tokenized_text[window_start: window_start + self.size]
+        return self.size // 2, self.tokenized_text[window_start: window_start + self.size]
 
     def __iter__(self):
         return self

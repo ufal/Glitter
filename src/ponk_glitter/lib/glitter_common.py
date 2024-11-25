@@ -153,6 +153,13 @@ def convert_tokenized_text_to_tensor(tokenized_text: {str: [int]}) -> {str: torc
     return {key: torch.tensor([value]) for key, value in tokenized_text.items()}
 
 
+def convert_list_of_tokens_to_tensor(tokenized_text: [int]) -> Dict[str, torch.Tensor]:
+    """
+    Convert a list of tokens to a Pytorch tensor
+    """
+    return {"input_ids": torch.tensor(tokenized_text), "attention_mask": torch.ones(len(tokenized_text))}
+
+
 def get_top_k_tokens(logits: list, tokenizer, top_k: int, ) -> [(str, float)]:
     # Get the probabilities of the last token
     # Create list of tuples with the index(token ID) and its probability

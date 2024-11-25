@@ -2,13 +2,12 @@ from random import choice
 from typing import Optional
 
 import torch
-import torch.nn.functional as F
 from rich import print
 from rich.progress import track
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType, GPT2LMHeadModel, \
     GPT2Tokenizer
 
-from lib.context_window import TokenizedMaskedContextWindow, TokenizedContextWindow
+from lib.context_window import TokenizedMaskedContextWindow, GPTContextWindow
 from lib.glitter_common import *
 
 logging.set_verbosity(logging.CRITICAL)
@@ -198,23 +197,23 @@ class GlitterGenerativeModel(GlitterModel):
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
         self.top_k = self.tokenizer.vocab_size
 
-    def glitter_token(self, original_token: int,
-                      tokenized_text: {str: TensorType},
-                      top_k: int) -> GlitteredToken:
+    def glitter_window(self,
+                       tokenized_text: {str: TensorType},
+                       n_last_related_tokens: int,
+                       top_k: int) -> List[GlitteredToken]:
 
         # Forward pass through the model to get logits
         with torch.no_grad():  # Disable gradient calculation for faster inference
-            outputs = self.model(**tokenized_text)
+            outputs = self.model(**tokenized_text)  # this is 2D
+            glittered_window = []
+            for i in reversed(range(n_last_related_tokens)):
+                logits = outputs.logits[-i - 1, :]
+                probs = torch.nn.functional.softmax(logits, dim=-1)
+                top_tokens = get_top_k_tokens(probs, self.tokenizer, top_k)
+                original_token = tokenized_text["input_ids"][-(i + 1)].item()
+                glittered_window.append(GlitteredToken(self.tokenizer.decode(original_token), top_tokens))
 
-            # Get logits for the last token in the sequence
-            next_token_logits = outputs.logits[:, -1, :]
-
-            # Apply softmax to get probabilities
-            probabilities = F.softmax(next_token_logits, dim=-1)
-
-            # Get the top k token probabilities and their indices
-            top_tokens = get_top_k_tokens(probabilities[-1], self.tokenizer, top_k)
-        return GlitteredToken(self.tokenizer.decode(original_token), top_tokens)
+        return glittered_window
 
     def glitter_text(self, text: str, top_k: int = None) -> GlitteredText:
         text = self.__text_preprocessing__(text)
@@ -222,14 +221,16 @@ class GlitterGenerativeModel(GlitterModel):
             top_k = self.top_k
         # Create a new empty GlitteredText object
         gt = GlitteredText(models=[self.name])
-        tokenized_text = self.tokenizer.encode(text, return_tensors="pt")[-1]
 
-        for ot, tmcw in track(zip(tokenized_text,
-                                  TokenizedContextWindow(
-                                      tokenized_text,
-                                      self.context_window_size,
-                                  )),
-                              description="Glittering...",
-                              total=len(tokenized_text)):
-            gt.append(self.glitter_token(ot, tmcw, top_k=top_k))
+        tokenized_text = self.tokenizer.encode(text, return_tensors="pt")[-1]
+        for last_n_tokens, cw in track(GPTContextWindow(tokenized_text, self.context_window_size),
+                                       description="Glittering...",
+                                       total=len(tokenized_text)):
+
+            glittered_window = self.glitter_window(convert_list_of_tokens_to_tensor(cw),
+                                                   last_n_tokens,
+                                                   top_k=top_k)
+            for token in glittered_window:
+                gt.append(token)
+
         return self.__glittered_text_postprocessing__(gt)

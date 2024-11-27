@@ -6,8 +6,10 @@ After=network.target
 Type=simple
 User=user
 WorkingDirectory=/srv/glitter
-ExecStart=/srv/glitter/venv/bin/python /srv/glitter/src/ponk_glitetr/server.py --port 8000
+ExecStart=/srv/glitter/venv/bin/python /srv/glitter/src/ponk_glitter/server.py --port 8000
 Restart=on-failure
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

@@ -8,5 +8,5 @@ class Robeczech(GlitterGenerativeModel):
                  context_window_size: int = 512):
         super().__init__(name="GPT-2 medical Czech",
                          lang="cs",
-                         model_path="/lchaloupsky/czech-gpt2-medical",
+                         model_path="lchaloupsky/czech-gpt2-medical",
                          context_window_size=context_window_size)

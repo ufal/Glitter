@@ -1,0 +1,13 @@
+[Unit]
+Description=PONK Glitter
+After=network.target
+
+[Service]
+Type=simple
+User=user
+WorkingDirectory=/srv/glitter
+ExecStart=/srv/glitter/venv/bin/python /srv/glitter/src/ponk_glitetr/server.py --port 8000
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

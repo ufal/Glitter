@@ -4,8 +4,7 @@ from typing import Optional
 import torch
 from rich import print
 from rich.progress import track
-from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType, GPT2LMHeadModel, \
-    GPT2Tokenizer
+from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType, AutoModelForCausalLM
 
 from lib.context_window import TokenizedMaskedContextWindow, GPTContextWindow
 from lib.glitter_common import *
@@ -39,10 +38,14 @@ def load_models(verbose=False):
     if verbose:
         print(" * Models loaded:")
     for model_name in AVAILABLE_MODELS.keys():
-        model = AVAILABLE_MODELS[model_name]()
-        models[model.name] = model
-        if verbose:
-            print(f"   - {model.name}")
+        try:
+            model = AVAILABLE_MODELS[model_name]()
+            models[model.name] = model
+            if verbose:
+                print(f"   - {model.name}")
+        except Exception as e:
+            if verbose:
+                print(f"   - {model_name} failed to load: {e}")
     if len(models) == 0 and verbose:
         print(" * No models loaded.")
     return models
@@ -55,7 +58,7 @@ class GlitterModel:
 
     def __init__(self, name: str,
                  lang: str,
-                 context_window_size: Optional[int] = 100,
+                 context_window_size: Optional[int] = 1024,
                  sample_size: Optional[int] = 1000) -> None:
         self.name: str = name
         self.lang: str = lang
@@ -64,7 +67,7 @@ class GlitterModel:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model_type = "base"
 
-    def glitter_masked_token(self, original_token: str, masked_context: str) -> GlitteredToken:
+    def glitter_masked_token(self, original_token: str, masked_context: str, top_k: int) -> GlitteredToken:
         """
         Given a masked context and a token, return a list of tuples, where each tuple is a token and a score.
         """
@@ -184,7 +187,7 @@ class GlitterGenerativeModel(GlitterModel):
     def __init__(self, name: str,
                  lang: str,
                  model_path: str,
-                 context_window_size: int = 100,
+                 context_window_size: int = None,
                  top_k: Optional[int] = None
                  ) -> None:
         super().__init__(name,
@@ -193,9 +196,12 @@ class GlitterGenerativeModel(GlitterModel):
                          top_k)
         self.model_type = "generative"
         self.model_path = model_path
-        self.model = GPT2LMHeadModel.from_pretrained(model_path).eval()
-        self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
+        self.model = AutoModelForCausalLM.from_pretrained(model_path).eval()
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.top_k = self.tokenizer.vocab_size
+        if context_window_size is None:
+            # set to the maximum possible value (n_positions)
+            self.context_window_size = self.model.config.n_positions
 
     def glitter_window(self,
                        tokenized_text: {str: TensorType},
@@ -223,6 +229,8 @@ class GlitterGenerativeModel(GlitterModel):
         gt = GlitteredText(models=[self.name])
 
         tokenized_text = self.tokenizer.encode(text, return_tensors="pt")[-1]
+        print("window count: ", len(GPTContextWindow(tokenized_text, self.context_window_size)))
+        print("tokenized_text len: ", len(tokenized_text))
         for last_n_tokens, cw in track(GPTContextWindow(tokenized_text, self.context_window_size),
                                        description="Glittering...",
                                        total=len(tokenized_text)):

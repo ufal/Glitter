@@ -12,7 +12,7 @@ class BertMultilingualUncased(GlitterUnmaskingModel):
 
         super().__init__(name="Bert multilingual uncased",
                          lang="multilingual",
-                         model_path="models/bert-base-multilingual-uncased",
+                         model_path="google-bert/bert-base-multilingual-uncased",
                          context_window_size=context_window_size,
                          top_k=top_k)
 

@@ -10,7 +10,7 @@ class Robeczech(GlitterUnmaskingModel):
                  top_k: Optional[int] = None):
         super().__init__(name="Legal Czech RoBERTa",
                          lang="cs",
-                         model_path="models/legal-czech-roberta-base",
+                         model_path="joelniklaus/legal-czech-roberta-base",
                          context_window_size=context_window_size,
                          top_k=top_k)
 

@@ -93,7 +93,6 @@ if __name__ == "__main__":
         exit(1)
 
     if args.silent:
-        print("Server argument passed")
         SILENT_MODE = True
 
     app.run(host=args.host, port=args.port, debug=args.debug)

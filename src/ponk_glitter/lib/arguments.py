@@ -13,6 +13,10 @@ def get_server_args():
     parser.add_argument("--port",
                         default="4000",
                         help="port to launch UI and API (default:4000)")
+    parser.add_argument("--silent",
+                        default=False,
+                        action="store_true",
+                        help="do not ahow glittering progress on console")
     return parser.parse_args()
 
 

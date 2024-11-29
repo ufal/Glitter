@@ -67,13 +67,7 @@ class GlitterModel:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model_type = "base"
 
-    def glitter_masked_token(self, original_token: str, masked_context: str, top_k: int) -> GlitteredToken:
-        """
-        Given a masked context and a token, return a list of tuples, where each tuple is a token and a score.
-        """
-        raise NotImplementedError()
-
-    def glitter_text(self, text: str) -> GlitteredText:
+    def glitter_text(self, text: str, silent=False) -> GlitteredText:
         """
         Given a text, return a list of tuples, where each tuple is a token and a tuple of token and score.
         """
@@ -150,7 +144,7 @@ class GlitterUnmaskingModel(GlitterModel):
         top_tokens = get_top_k_tokens(probs, self.tokenizer, top_k)
         return GlitteredToken(self.tokenizer.decode(original_token), top_tokens)
 
-    def glitter_text(self, text: str, top_k: int = None) -> GlitteredText:
+    def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k
@@ -158,15 +152,16 @@ class GlitterUnmaskingModel(GlitterModel):
         gt = GlitteredText(models=[self.name])
         tokenized_text = self.tokenizer(text)["input_ids"]
         mask_token = self.tokenizer.convert_tokens_to_ids("[MASK]")
+    
+        iterator = zip(tokenized_text,
+                       TokenizedMaskedContextWindow(
+                           tokenized_text,
+                           self.context_window_size,
+                           mask_token=mask_token))
+        if not silent:
+            iterator = track(iterator, description="Glittering...", total=len(tokenized_text))
 
-        for ot, tmcw in track(zip(tokenized_text,
-                                  TokenizedMaskedContextWindow(
-                                      tokenized_text,
-                                      self.context_window_size,
-                                      mask_token=mask_token
-                                  )),
-                              description="Glittering...",
-                              total=len(tokenized_text)):
+        for ot, tmcw in iterator:
             gt.append(self.glitter_masked_token(ot, tmcw, top_k=top_k))
         return self.__glittered_text_postprocessing__(gt)
 
@@ -221,7 +216,7 @@ class GlitterGenerativeModel(GlitterModel):
 
         return glittered_window
 
-    def glitter_text(self, text: str, top_k: int = None) -> GlitteredText:
+    def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k
@@ -229,12 +224,12 @@ class GlitterGenerativeModel(GlitterModel):
         gt = GlitteredText(models=[self.name])
 
         tokenized_text = self.tokenizer.encode(text, return_tensors="pt")[-1]
-        print("window count: ", len(GPTContextWindow(tokenized_text, self.context_window_size)))
-        print("tokenized_text len: ", len(tokenized_text))
-        for last_n_tokens, cw in track(GPTContextWindow(tokenized_text, self.context_window_size),
-                                       description="Glittering...",
-                                       total=len(tokenized_text)):
 
+        iterator = GPTContextWindow(tokenized_text, self.context_window_size)
+        if not silent:
+            iterator = track(iterator, description="Glittering...", total=len(tokenized_text))
+
+        for last_n_tokens, cw in iterator:
             glittered_window = self.glitter_window(convert_list_of_tokens_to_tensor(cw),
                                                    last_n_tokens,
                                                    top_k=top_k)

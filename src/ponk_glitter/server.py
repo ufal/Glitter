@@ -9,6 +9,7 @@ from lib.glitter_models import load_models, categorize_models
 MODELS = load_models(verbose=True)
 CATEGORIZED_MODELS = categorize_models(MODELS)
 COLOR_MODES = ("heatmap", "simple")
+SILENT_MODE = False
 
 app = Flask(__name__, static_folder="static")
 
@@ -58,7 +59,7 @@ def static_route(path):
 @cache
 def glitter_text(text_to_glitter: str, model_name: str, color_mode: str) -> str:
     model = MODELS[model_name]
-    glittered_text = model.glitter_text(text_to_glitter)
+    glittered_text = model.glitter_text(text_to_glitter, silent=SILENT_MODE)
     return glittered_text.to_html(color_mode=color_mode)
 
 
@@ -69,7 +70,9 @@ def glitter_text_request():
     color_mode = request.form["color_mode"]
     print(f" * Glittering with model: {model_name} and color_mode: {color_mode}")
     return render_index_page(text_to_glitter=text_to_glitter,
-                             glittered_text=glitter_text(text_to_glitter, model_name, color_mode),
+                             glittered_text=glitter_text(text_to_glitter,
+                                                         model_name,
+                                                         color_mode),
                              selected_model=model_name,
                              selected_color_mode=color_mode)
 
@@ -88,5 +91,9 @@ if __name__ == "__main__":
 
     if len(MODELS) == 0:
         exit(1)
+
+    if args.silent:
+        print("Server argument passed")
+        SILENT_MODE = True
 
     app.run(host=args.host, port=args.port, debug=args.debug)

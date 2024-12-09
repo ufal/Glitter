@@ -141,8 +141,11 @@ class GlitterUnmaskingModel(GlitterModel):
             # Shape: Batch x Seq len x Vocab size
             probs = normalized_results[0, -1, :].tolist()
 
-        top_tokens = get_top_k_tokens(probs, self.tokenizer, top_k)
-        return GlitteredToken(self.tokenizer.decode(original_token), top_tokens)
+        original_token_str = self.tokenizer.decode(original_token)
+        sorted_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer)
+        nth, prob = get_order_and_probability_of_original_token(original_token_str, sorted_tokens)
+        top_tokens = sorted_tokens[:top_k]
+        return GlitteredToken(original_token_str, nth, prob, top_tokens)
 
     def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         text = self.__text_preprocessing__(text)
@@ -152,7 +155,7 @@ class GlitterUnmaskingModel(GlitterModel):
         gt = GlitteredText(models=[self.name])
         tokenized_text = self.tokenizer(text)["input_ids"]
         mask_token = self.tokenizer.convert_tokens_to_ids("[MASK]")
-    
+
         iterator = zip(tokenized_text,
                        TokenizedMaskedContextWindow(
                            tokenized_text,
@@ -168,7 +171,7 @@ class GlitterUnmaskingModel(GlitterModel):
     def generate_text(self, prompt: str, length: int = 20, top_k: int = 50) -> str:
         text = prompt
         for _ in track(range(length), description="Generating...", total=length):
-            new_token = choice(self.pipe(text + " [MASK]", top_k=top_k))["token_str"]
+            new_token = choice(self.model.pipe(text + " [MASK]", top_k=top_k))["token_str"]
             text += " " if new_token == "[SEP]" else new_token
         return text
 
@@ -210,9 +213,11 @@ class GlitterGenerativeModel(GlitterModel):
             for i in reversed(range(n_last_related_tokens)):
                 logits = outputs.logits[-i - 1, :]
                 probs = torch.nn.functional.softmax(logits, dim=-1)
-                top_tokens = get_top_k_tokens(probs, self.tokenizer, top_k)
-                original_token = tokenized_text["input_ids"][-(i + 1)].item()
-                glittered_window.append(GlitteredToken(self.tokenizer.decode(original_token), top_tokens))
+                sorted_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer)
+                original_token = self.tokenizer.decode(tokenized_text["input_ids"][-(i + 1)].item())
+                nth, prob = get_order_and_probability_of_original_token(original_token, sorted_tokens)
+                top_tokens = sorted_tokens[:top_k]
+                glittered_window.append(GlitteredToken(original_token, nth, prob, top_tokens))
 
         return glittered_window
 

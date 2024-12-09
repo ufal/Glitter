@@ -30,8 +30,8 @@ def print_table_of_glittered_text(gt: GlitteredText, title="") -> None:
     table.add_column("Probability", justify="right")
     table.add_column("Top results", justify="right")
     for token in gt.get_content():
-        top_n = " ".join([i[0] for i in token.data]) if len(token.data) < 10 else " ".join(
-            [token.data[i][0] for i in range(10)])
+        top_n = " ".join([i[0] for i in token.top_k_tokens]) if len(token.top_k_tokens) < 10 else " ".join(
+            [token.top_k_tokens[i][0] for i in range(10)])
         table.add_row(token.original_token.replace("\n", r"[\n]"),
                       str(token.nth) if token.nth != -1 else "ε",
                       f"{token.probability:.8f}",

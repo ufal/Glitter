@@ -5,7 +5,7 @@ This is command line interface for PONK glitter tool set.
 Usage scheme:
 
 ```bash
-glitter_cli.py [-h] [--to-json | --to-html | --to-dict | --to-table] [--output OUTPUT] [--input INPUT] [--model MODEL]
+glitter_cli.py [-h] [--to-json | --to-html | --to-dict | --to-table | --to-tex] [--output OUTPUT] [--input INPUT] [--model MODEL]
 ```
 
 ### Options
@@ -14,7 +14,8 @@ glitter_cli.py [-h] [--to-json | --to-html | --to-dict | --to-table] [--output O
     - `--to-json`    - export data to JSON
     - `--to-html`    - export data to HTML
     - `--to-dict`    - export data to python dictionary format
-    - `--to-table`   - export data to table containig for each token, its probability, order and top 10 candidates
+    - `--to-table`   - export data to table containing for each token, its probability, order and top 10 candidates
+    - `--to-tex`     - export data as TeX macros
     - Not choosing any export format will result in printing colored glittered text
 - `--output OUTPUT`  - output file name (default: `stdout`)
 - `--input INPUT`    - input file name (default: `stdin`)

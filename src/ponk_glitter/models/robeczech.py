@@ -7,7 +7,7 @@ class Robeczech(GlitterUnmaskingModel):
 
     def __init__(self,
                  context_window_size: int = 200,
-                 top_k: Optional[int] = None):
+                 top_k: Optional[int] = 10):
         super().__init__(name="Robeczech",
                          lang="cs",
                          model_path="ufal/robeczech-base",

@@ -8,7 +8,7 @@ class BertMultilingualUncased(GlitterUnmaskingModel):
 
     def __init__(self,
                  context_window_size: int = 100,
-                 top_k: Optional[int] = None):
+                 top_k: Optional[int] = 10):
 
         super().__init__(name="Bert multilingual uncased",
                          lang="multilingual",

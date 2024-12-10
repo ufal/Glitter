@@ -158,7 +158,9 @@ def convert_list_of_tokens_to_tensor(tokenized_text: torch.Tensor) -> Dict[str, 
     return {"input_ids": torch.tensor(tokenized_text), "attention_mask": torch.ones(len(tokenized_text))}
 
 
-def get_tokens_sorted_by_probability(logits: torch.Tensor, tokenizer, top_k: int = 10000) -> List[Tuple[str, float]]:
+def get_tokens_sorted_by_probability(logits: torch.Tensor,
+                                     tokenizer,
+                                     top_k: int = 10000) -> List[Tuple[str, float]]:
     top_probs, top_indices = torch.topk(logits,
                                         largest=True,
                                         sorted=True,
@@ -167,7 +169,7 @@ def get_tokens_sorted_by_probability(logits: torch.Tensor, tokenizer, top_k: int
     return [(token, prob.item()) for token, prob in zip(decoded_tokens, top_probs)]
 
 
-def get_top_k_tokens(logits: list, tokenizer, top_k: int, ) -> List[Tuple[str, float]]:
+def get_top_k_tokens(logits: torch.Tensor, tokenizer, top_k: int, ) -> List[Tuple[str, float]]:
     # Get the probabilities of the last token
     indexed_probs = get_tokens_sorted_by_probability(logits, tokenizer)
     # Get the top k probabilities

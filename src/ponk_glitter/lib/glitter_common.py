@@ -148,10 +148,13 @@ def convert_tokenized_text_to_tensor(tokenized_text: {str: [int]}) -> {str: torc
     return {key: torch.tensor([value]) for key, value in tokenized_text.items()}
 
 
-def convert_list_of_tokens_to_tensor(tokenized_text: [int]) -> Dict[str, torch.Tensor]:
+def convert_list_of_tokens_to_tensor(tokenized_text: torch.Tensor) -> Dict[str, torch.Tensor]:
     """
     Convert a list of tokens to a Pytorch tensor
     """
+    if type(tokenized_text) is torch.Tensor:
+        return {"input_ids": tokenized_text, "attention_mask": torch.ones(len(tokenized_text))}
+    print("Warning: convert list received list type (not torch.Tensor), this is inefficient")
     return {"input_ids": torch.tensor(tokenized_text), "attention_mask": torch.ones(len(tokenized_text))}
 
 
@@ -164,6 +167,15 @@ def get_tokens_sorted_by_probability(logits: list, tokenizer) -> List[Tuple[str,
     # Create list of tuples with the token and its probability
     str_prob = [(tokenizer.decode([index]), p) for index, p in indexed_probs]
     return str_prob
+
+
+def get_tokens_sorted_by_probability(logits: torch.Tensor, tokenizer, top_k: int = 10000) -> List[Tuple[str, float]]:
+    top_probs, top_indices = torch.topk(logits,
+                                        largest=True,
+                                        sorted=True,
+                                        k=top_k)
+    decoded_tokens = tokenizer.batch_decode([[idx] for idx in top_indices.tolist()])
+    return [(token, prob.item()) for token, prob in zip(decoded_tokens, top_probs)]
 
 
 def get_top_k_tokens(logits: list, tokenizer, top_k: int, ) -> List[Tuple[str, float]]:

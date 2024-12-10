@@ -139,7 +139,7 @@ class GlitterUnmaskingModel(GlitterModel):
             results = self.model(**masked_tokenized_text).logits
             normalized_results = results.softmax(dim=-1)
             # Shape: Batch x Seq len x Vocab size
-            probs = normalized_results[0, -1, :].tolist()
+            probs = normalized_results[0, -1, :]
 
         original_token_str = self.tokenizer.decode(original_token)
         sorted_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer)
@@ -211,7 +211,7 @@ class GlitterGenerativeModel(GlitterModel):
             outputs = self.model(**tokenized_text)  # this is 2D
             glittered_window = []
             for i in reversed(range(n_last_related_tokens)):
-                logits = outputs.logits[-i - 1, :]
+                logits = outputs.logits[-i - 1, :].detach().cpu()
                 probs = torch.nn.functional.softmax(logits, dim=-1)
                 sorted_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer)
                 original_token = self.tokenizer.decode(tokenized_text["input_ids"][-(i + 1)].item())

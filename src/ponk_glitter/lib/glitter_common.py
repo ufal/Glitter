@@ -1,6 +1,6 @@
 import html
 import json
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 
 from jinja2 import Template
 from torch import torch
@@ -160,7 +160,9 @@ def convert_list_of_tokens_to_tensor(tokenized_text: torch.Tensor) -> Dict[str, 
 
 def get_tokens_sorted_by_probability(logits: torch.Tensor,
                                      tokenizer,
-                                     top_k: int = 10000) -> List[Tuple[str, float]]:
+                                     top_k: Optional[int] = None) -> List[Tuple[str, float]]:
+    if top_k is None:
+        top_k = len(logits)
     top_probs, top_indices = torch.topk(logits,
                                         largest=True,
                                         sorted=True,

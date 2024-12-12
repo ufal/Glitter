@@ -202,7 +202,7 @@ class GlitterGenerativeModel(GlitterModel):
             self.context_window_size = self.model.config.n_positions
 
     def glitter_window(self,
-                       tokenized_text: {str: TensorType},
+                       tokenized_text: {str: torch.Tensor},
                        n_last_related_tokens: int,
                        top_k: int) -> List[GlitteredToken]:
 
@@ -210,8 +210,10 @@ class GlitterGenerativeModel(GlitterModel):
         with torch.no_grad():  # Disable gradient calculation for faster inference
             outputs = self.model(**tokenized_text)  # this is 2D
             glittered_window = []
-            for i in reversed(range(n_last_related_tokens)):
-                logits = outputs.logits[-i - 1, :].detach().cpu()
+            for i in reversed(range(0, n_last_related_tokens)):
+                if -i - 2 < -self.context_window_size:
+                    continue
+                logits = outputs.logits[-i - 2, :].detach().cpu()
                 probs = torch.nn.functional.softmax(logits, dim=-1)
                 sorted_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer)
                 original_token = self.tokenizer.decode(tokenized_text["input_ids"][-(i + 1)].item())
@@ -221,6 +223,7 @@ class GlitterGenerativeModel(GlitterModel):
 
         return glittered_window
 
+
     def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         text = self.__text_preprocessing__(text)
         if top_k is None:
@@ -229,6 +232,9 @@ class GlitterGenerativeModel(GlitterModel):
         gt = GlitteredText(models=[self.name])
 
         tokenized_text = self.tokenizer.encode(text, return_tensors="pt")[-1]
+
+        # Add first token
+        gt.append(GlitteredToken(self.tokenizer.decode(tokenized_text[0].item()), 1, 1.0, []))
 
         iterator = GPTContextWindow(tokenized_text, self.context_window_size)
         if not silent:

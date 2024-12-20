@@ -6,7 +6,7 @@ from typing import Optional
 class Robeczech(GlitterGenerativeModel):
 
     def __init__(self,
-                 context_window_size: int = 1024,
+                 context_window_size: int = 512,
                  top_k: Optional[int] = 10):
         super().__init__(name="GPT-2 XL Czech",
                          lang="cs",

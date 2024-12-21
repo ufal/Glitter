@@ -15,9 +15,13 @@ of large language models. This can be used for research of text readability.
 
 ## Models
 Currently natively supported models:
-- [Robeczech base](https://huggingface.co/ufal/robeczech-base)
+- [Robeczech (base)](https://huggingface.co/ufal/robeczech-base)
 - [BERT base model (uncased)](https://huggingface.co/google-bert/bert-base-uncased)
 - [FERNET C5](https://huggingface.co/fav-kky/FERNET-C5)
+- [Czech GPT2 XL](https://huggingface.co/BUT-FIT/Czech-GPT-2-XL-133k)
+- [Czech GPT2 medical](https://huggingface.co/lchaloupsky/czech-gpt2-medical)
+- [GPT2](https://huggingface.co/openai-community/gpt2)
+- [Legal Czech Roberta (base)](https://huggingface.co/joelniklaus/legal-czech-roberta-base)
 
 For automatic model download run `make download-models` in project root directory.
 

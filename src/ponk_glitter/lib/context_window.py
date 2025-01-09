@@ -1,4 +1,5 @@
 from torch import tensor
+from typing import List
 
 
 class ContextWindow:
@@ -8,7 +9,7 @@ class ContextWindow:
     and it grows to defined size.
     """
 
-    def __init__(self, tokenized_text: [str], size: int):
+    def __init__(self, tokenized_text: List[str], size: int):
         self.tokenized_text = tokenized_text
         self.size = size
         self.index = 1

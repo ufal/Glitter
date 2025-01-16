@@ -210,8 +210,8 @@ class GlitterGenerativeModel(GlitterModel):
         with torch.no_grad():  # Disable gradient calculation for faster inference
             outputs = self.model(**tokenized_text)  # this is 2D
             glittered_window = []
-            for i in reversed(range(0, n_last_related_tokens)):
-                if -i - 2 < -self.context_window_size:
+            for i in reversed(range(0, n_last_related_tokens-1)):
+                if -i - 2 <= -self.context_window_size:
                     continue
                 logits = outputs.logits[-i - 2, :].detach().cpu()
                 probs = torch.nn.functional.softmax(logits, dim=-1)

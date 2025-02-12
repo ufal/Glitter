@@ -1,54 +1,53 @@
-
 .gt-heatmap-0 {
-    background-color: #0000ff; /* Blue */
+    background-color: #6d6df7; /* Blue */
 }
 
 .gt-heatmap-1 {
-    background-color: #001fff; /* Slightly lighter blue */
+    background-color: #6d7ef7; /* Slightly lighter blue */
 }
 .gt-heatmap-2 {
-    background-color: #003fff; /* Lighter blue */
+    background-color: #6d8ff7; /* Lighter blue */
 }
 .gt-heatmap-3 {
-    background-color: #005fff; /* Light blue */
+    background-color: #6da0f7; /* Light blue */
 }
 .gt-heatmap-4 {
-    background-color: #007fff; /* Sky blue */
+    background-color: #6db2f7; /* Sky blue */
 }
 .gt-heatmap-5 {
-    background-color: #009fff; /* Pale blue */
+    background-color: #6dc3f7; /* Pale blue */
 }
 .gt-heatmap-6 {
-    background-color: #00bfff; /* Aqua */
+    background-color: #6dd4f7; /* Aqua */
 }
 .gt-heatmap-7 {
-    background-color: #00dfff; /* Light cyan */
+    background-color: #6de6f7; /* Light cyan */
 }
 
 .gt-heatmap-8 {
-    background-color: #00ffff; /* Cyan */
+    background-color: #6df7f7; /* Cyan */
 }
 .gt-heatmap-9 {
-    background-color: #00ff7f; /* Light green */
+    background-color: #6df7b2; /* Light green */
 }
 .gt-heatmap-10 {
-    background-color: #00ff00; /* Green */
+    background-color: #6df76d; /* Green */
 }
 .gt-heatmap-11 {
-    background-color: #7fff00; /* Yellow-green */
+    background-color: #b2f76d; /* Yellow-green */
 }
 
 .gt-heatmap-12 {
-    background-color: #ffff00; /* Yellow */
+    background-color: #f7f76d; /* Yellow */
 }
 .gt-heatmap-13 {
-    background-color: #ffbf00; /* Orange-yellow */
+    background-color: #f7d46d; /* Orange-yellow */
 }
 .gt-heatmap-14 {
-    background-color: #ff7f00; /* Orange */
+    background-color: #f7b26d; /* Orange */
 }
 .gt-heatmap-15 {
-    background-color: #ff0000; /* Red */
+    background-color: #f76d6d; /* Red */
 }
 
 /************************************************************/
@@ -79,7 +78,7 @@
 .glitter-token > .gt-heatmap-15 {
 	display: inline-block;
 	color: black;
-	font-size: 1.5em;
+	font-size: 1.2em;
 }
 
 .glittered-text {

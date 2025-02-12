@@ -186,6 +186,13 @@ def get_order_and_probability_of_original_token(original_token: str, tokens: Lis
     return -1, 0.0
 
 
+def get_approx_order_from_probability(prob: float, tokens: List[Tuple[str, float]]):
+    for i, (token, approx_prob) in enumerate(tokens):
+        if prob > approx_prob:
+            return i
+    return i
+
+
 def normalize_glittered_text_with_subword_tokens(glittered_text: GlitteredText) -> GlitteredText:
     """
     Normalize the GlitteredText object by removing the '##' from the subword tokens

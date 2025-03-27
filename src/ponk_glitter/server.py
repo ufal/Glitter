@@ -2,7 +2,7 @@
 from flask import Flask, send_from_directory, request, render_template
 import logging
 from functools import cache
-
+from conllu import parse
 from lib.arguments import get_server_args
 from lib.glitter_models import load_models, categorize_models
 
@@ -62,6 +62,16 @@ def glitter_text(text_to_glitter: str, model_name: str, color_mode: str) -> str:
     glittered_text = model.glitter_text(text_to_glitter, silent=SILENT_MODE)
     return glittered_text.to_html(color_mode=color_mode)
 
+@cache
+def glitter_text_to_conllu(conllu_string: str, model_name: str) -> str:
+    model = MODELS[model_name]
+    conllu_data = parse(conllu_string)
+    text_to_glitter = ""
+    for sentence in conllu_data:
+        if "text" in sentence.metadata:
+           text_to_glitter += f'{sentence.metadata["text"]} '
+    glittered_text = model.glitter_text(text_to_glitter, silent=SILENT_MODE)
+    return glittered_text.to_conllu(conllu_data)
 
 @app.route("/", methods=["POST"])
 def glitter_text_request():
@@ -76,7 +86,34 @@ def glitter_text_request():
                              selected_model=model_name,
                              selected_color_mode=color_mode)
 
+@app.route('/process-conllu', methods=['POST'])
+def process_conllu():
+    conllu_string = request.data.decode('utf-8')
+    modified_conllu_string = glitter_text_to_conllu(conllu_string, "GPT-2 XL Czech") 
+    result = {
+        'result': modified_conllu_string,
+        'colors' : 
+            {
+                1 : "#6d6df7", 
+                2 : "#6d7ef7", 
+                3 : "#6d8ff7", 
+                4 : "#6da0f7", 
+                5 : "#6db2f7", 
+                6 : "#6dc3f7", 
+                7 : "#6dd4f7", 
+                8 : "#6de6f7", 
+                9 : "#6df7f7", 
+                10 : "#6df7b2", 
+                11 : "#6df76d", 
+                12 : "#b2f76d", 
+                13 : "#f7f76d", 
+                14 : "#f7d46d", 
+                15 : "#f7b26d", 
+                16 : "#f76d6d"
+            } 
+        }
 
+    return result
 ######################################################################################
 # Server
 

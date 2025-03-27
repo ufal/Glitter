@@ -1,6 +1,8 @@
 import html
 import json
 from typing import List, Tuple, Dict, Optional
+from conllu import parse_incr
+from collections import deque
 
 from jinja2 import Template
 from torch import torch
@@ -42,6 +44,7 @@ class GlitteredToken:
         self.top_k_tokens = top_k_tokens
         self.nth = nth
         self.top_k = len(top_k_tokens)
+        self.surprisal = self.__get_heatmap_color_index__() + 1
 
     def to_dict(self) -> Dict:
         return {
@@ -104,6 +107,15 @@ class GlitteredText:
     def get_content(self) -> List[GlitteredToken]:
         return self.content
 
+    def find_token(self, conllu_token,  start_from, finish_at):
+        start_from = min(start_from, len(self.content) - 1)
+        finish_at = min(finish_at, len(self.content) - 1)
+        for i, tok in enumerate(self.content[start_from:finish_at]):
+            if tok.original_token.strip() == conllu_token["form"].strip():
+                return tok, i + start_from
+        print("WARNING: Token '{conllu_token['form']}' not found in Glittered text, moving to next token")
+        return None, start_from
+
     def to_json(self):
         return json.dumps(self.to_dict())
 
@@ -121,6 +133,23 @@ class GlitteredText:
 
     def to_tex(self):
         return "".join([token.to_tex() for token in self.content])
+
+    def to_conllu(self, conllu_data):
+        output = ""
+        start_from = 0
+        finish_at = 5
+        for sentence in conllu_data:
+            for conllu_token in sentence:
+                glittered_token, pos = self.find_token(conllu_token, start_from, finish_at)
+                if glittered_token:
+                    conllu_token["misc"]["PonkApp2:Surprisal"] = glittered_token.surprisal
+                    conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % glittered_token.probability
+                    conllu_token["misc"]["PonkApp2:VocabRank"] = glittered_token.nth
+                    start_from = pos + 1
+                    finish_at += 1
+            output += sentence.serialize()
+        return output
+    
 
     def __str__(self):
         return "".join([str(token) for token in self.content])

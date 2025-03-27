@@ -44,6 +44,10 @@ def get_cli_args():
                                 default=False,
                                 action="store_true",
                                 help="export data as TeX macros")
+    export_options.add_argument("--to-conllu",
+                                default=False,
+                                action="store_true",
+                                help="export data in conllu format for PONK integration")
 
     parser.add_argument("--output",
                         default="/dev/stdout",

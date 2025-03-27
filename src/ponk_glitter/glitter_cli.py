@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
+import os
+import sys
+
 from rich import print
 from rich.console import Console
 from rich.table import Table
+from conllu import parse_incr
 
 from lib.arguments import get_cli_args
 from lib.glitter_common import GlitteredText, GlitteredToken
@@ -55,6 +59,21 @@ def cmd_list_models():
     exit(0)
 
 
+def is_conllu_file(filename):
+    return filename.lower().endswith(".conllu") or filename.lower().endswith(".conll")
+
+
+def read_conllu(filename):
+    text = ""
+    with open(input_file, "r") as file:
+        data = parse_incr(file)
+        for sentence in data:
+            if "text" in sentence.metadata:
+               text += sentence.metadata["text"]
+               text += " "
+    return data, text
+
+
 if __name__ == "__main__":
     args = get_cli_args()
     AVAILABLE_MODELS = get_registered_models()
@@ -72,9 +91,13 @@ if __name__ == "__main__":
         exit(1)
     m = AVAILABLE_MODELS[args.model]()
 
-    with open(input_file, "r") as file:
-        text = file.read()
-        gt = m.glitter_text(text)
+    if is_conllu_file(input_file) or args.to_conllu:
+        conllu_data, text = read_conllu(input_file)
+    else:
+        with open(input_file, "r") as file:
+            text = file.read()
+    
+    gt = m.glitter_text(text)
 
     if args.to_json:
         with open(output_file, "w") as file:
@@ -90,6 +113,9 @@ if __name__ == "__main__":
             file.write(gt.to_tex())
     elif args.to_table:
         print_table_of_glittered_text(gt)
+    elif args.to_conllu:
+        with open(output_file, "w") as file:
+            file.write(gt.to_conllu(conllu_data))
     else:
         print_color_gradient()
         print("")

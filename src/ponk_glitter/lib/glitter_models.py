@@ -1,6 +1,7 @@
 from random import choice
 from typing import Optional
 
+import os
 import torch
 from rich import print
 from rich.progress import track
@@ -13,7 +14,7 @@ logging.set_verbosity(logging.CRITICAL)
 
 AVAILABLE_MODELS = {}
 PUNCTUATION = (" ",".",",","?","!",":",";","'",'"')
-
+HF_TOKEN = os.environ["HF_TOKEN"]
 
 def register_model(name):
     def decorator(cls):
@@ -123,7 +124,7 @@ class GlitterUnmaskingModel(GlitterModel):
                          top_k)
         self.model_type = "unmasking"
         self.model_path = model_path
-        self.model = AutoModelForMaskedLM.from_pretrained(model_path)  # .to(self.device)
+        self.model = AutoModelForMaskedLM.from_pretrained(model_path, use_auth_token=HF_TOKEN)  # .to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.pipeline = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer)
 
@@ -202,6 +203,7 @@ class GlitterGenerativeModel(GlitterModel):
             # set to the maximum possible value (n_positions)
             self.context_window_size = self.model.config.n_positions
 
+
     def glitter_window(self,
                        tokenized_text: {str: torch.Tensor},
                        n_last_related_tokens: int,
@@ -236,6 +238,49 @@ class GlitterGenerativeModel(GlitterModel):
 
 
     def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
+        text = self.__text_preprocessing__(text)
+        if top_k is None:
+            top_k = self.top_k
+
+        # Step 1: Prepare chat template
+        system_prompt = "You are a helpful assistant."
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": text}
+        ]
+        chat_prompt = self.tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+
+        # Step 2: Tokenize the full prompt with chat template
+        tokenized_full = self.tokenizer(chat_prompt, return_tensors="pt")["input_ids"][0]
+
+        # Step 3: Tokenize user text alone to find how many tokens to keep
+        user_only_tokens = self.tokenizer(text, return_tensors="pt")["input_ids"][0]
+        num_template_tokens = tokenized_full.shape[0] - user_only_tokens.shape[0]
+
+        # Step 4: Prepare for glittering
+        gt = GlitteredText(models=[self.name])
+        gt.append(GlitteredToken(self.tokenizer.decode(tokenized_full[num_template_tokens].item()), 1, 1.0, []))
+
+        iterator = GPTContextWindow(tokenized_full, self.context_window_size)
+        if not silent:
+            iterator = track(iterator, description="Glittering...", total=len(tokenized_full))
+
+        for last_n_tokens, cw in iterator:
+            glittered_window = self.glitter_window(convert_list_of_tokens_to_tensor(cw),
+                                                   last_n_tokens,
+                                                   top_k=top_k)
+            for token in glittered_window:
+                # Step 5: Only keep tokens that fall outside the template portion
+                token_index = token.position  # assuming GlitteredToken includes token position
+                if token_index >= num_template_tokens:
+                    gt.append(token)
+
+        return self.__glittered_text_postprocessing__(gt)
+
+
+    def glitter_text_orig(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k

@@ -210,16 +210,17 @@ class GlitterGenerativeModel(GlitterModel):
                        top_k: int) -> List[GlitteredToken]:
 
         # Forward pass through the model to get logits
+        print(tokenized_text["input_ids"].shape)
         with torch.no_grad():  # Disable gradient calculation for faster inference
-            outputs = self.model(**tokenized_text)  # this is 2D
+            outputs = self.model(**tokenized_text, return_dict=True)  # this is 2D
             glittered_window = []
             for i in reversed(range(0, n_last_related_tokens-1)):
                 if -i - 2 <= -self.context_window_size:
                     continue
-                logits = outputs.logits[-i - 2, :].detach().cpu()
+                logits = outputs.logits[0][-i - 2, :].detach().cpu()
                 probs = torch.nn.functional.softmax(logits, dim=-1)
                 sorted_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer)
-                original_token = self.tokenizer.decode(tokenized_text["input_ids"][-(i + 1)].item())
+                original_token = self.tokenizer.decode(tokenized_text["input_ids"][0][-(i + 1)].item())
                 nth, prob = get_order_and_probability_of_original_token(original_token, sorted_tokens)
                 top_tokens = sorted_tokens[:top_k]
                 if not original_token.startswith(PUNCTUATION)and glittered_window:
@@ -237,7 +238,7 @@ class GlitterGenerativeModel(GlitterModel):
         return glittered_window
 
 
-    def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
+    def glitter_text_alt(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k
@@ -280,7 +281,7 @@ class GlitterGenerativeModel(GlitterModel):
         return self.__glittered_text_postprocessing__(gt)
 
 
-    def glitter_text_orig(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
+    def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k
@@ -297,7 +298,7 @@ class GlitterGenerativeModel(GlitterModel):
             iterator = track(iterator, description="Glittering...", total=len(tokenized_text))
 
         for last_n_tokens, cw in iterator:
-            glittered_window = self.glitter_window(convert_list_of_tokens_to_tensor(cw),
+            glittered_window = self.glitter_window(convert_list_of_tokens_to_2D_tensor(cw),
                                                    last_n_tokens,
                                                    top_k=top_k)
             for token in glittered_window:

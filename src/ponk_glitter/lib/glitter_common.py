@@ -187,6 +187,21 @@ def convert_list_of_tokens_to_tensor(tokenized_text: torch.Tensor) -> Dict[str, 
     return {"input_ids": torch.tensor(tokenized_text), "attention_mask": torch.ones(len(tokenized_text))}
 
 
+def convert_list_of_tokens_to_2D_tensor(tokenized_text: torch.Tensor) -> Dict[str, torch.Tensor]:
+    """
+    Convert a list of tokens to a 2D Pytorch tensor
+    """
+    if isinstance(tokenized_text, torch.Tensor):
+        if tokenized_text.dim() == 1:
+            # Unsqueeze to make it (1, seq_len)
+            tokenized_text = tokenized_text.unsqueeze(0)
+        attention_mask = torch.ones_like(tokenized_text)
+        return {"input_ids": tokenized_text, "attention_mask": attention_mask}
+    print("Warning: convert list received list type (not torch.Tensor), this is inefficient")
+    return {"input_ids": torch.tensor([tokenized_text]), "attention_mask": torch.ones(1, len(tokenized_text))}
+
+
+
 def get_tokens_sorted_by_probability(logits: torch.Tensor,
                                      tokenizer,
                                      top_k: Optional[int] = None) -> List[Tuple[str, float]]:

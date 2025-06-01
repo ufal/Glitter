@@ -225,7 +225,7 @@ def get_top_k_tokens(logits: torch.Tensor, tokenizer, top_k: int, ) -> List[Tupl
 
 def get_order_and_probability_of_original_token(original_token: str, tokens: List[Tuple[str, float]]):
     for i, (token, prob) in enumerate(tokens):
-        if token == original_token:
+        if token.strip() == original_token.strip():
             return i, prob
     return -1, 0.0
 

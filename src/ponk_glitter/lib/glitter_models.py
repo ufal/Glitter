@@ -2,6 +2,7 @@ from random import choice
 from typing import Optional
 
 import os
+import re
 import torch
 from rich import print
 from rich.progress import track
@@ -14,6 +15,7 @@ logging.set_verbosity(logging.CRITICAL)
 
 AVAILABLE_MODELS = {}
 PUNCTUATION = (" ",".",",","?","!",":",";","'",'"')
+DELIMETERS = ("Ġ", "▁")
 HF_TOKEN = os.environ["HF_TOKEN"]
 
 def register_model(name):
@@ -156,6 +158,7 @@ class GlitterUnmaskingModel(GlitterModel):
         # Create a new empty GlitteredText object
         gt = GlitteredText(models=[self.name])
         tokenized_text = self.tokenizer(text)["input_ids"]
+
         mask_token = self.tokenizer.convert_tokens_to_ids("[MASK]")
 
         iterator = zip(tokenized_text,
@@ -210,7 +213,7 @@ class GlitterGenerativeModel(GlitterModel):
                        top_k: int) -> List[GlitteredToken]:
 
         # Forward pass through the model to get logits
-        print(tokenized_text["input_ids"].shape)
+        print(tokenized_text)
         with torch.no_grad():  # Disable gradient calculation for faster inference
             outputs = self.model(**tokenized_text, return_dict=True)  # this is 2D
             glittered_window = []
@@ -220,19 +223,25 @@ class GlitterGenerativeModel(GlitterModel):
                 logits = outputs.logits[0][-i - 2, :].detach().cpu()
                 probs = torch.nn.functional.softmax(logits, dim=-1)
                 sorted_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer)
+                original_token_raw = self.tokenizer.convert_ids_to_tokens(tokenized_text["input_ids"][0][-(i + 1)].item())
                 original_token = self.tokenizer.decode(tokenized_text["input_ids"][0][-(i + 1)].item())
                 nth, prob = get_order_and_probability_of_original_token(original_token, sorted_tokens)
                 top_tokens = sorted_tokens[:top_k]
-                if not original_token.startswith(PUNCTUATION)and glittered_window:
+    
+                if not original_token_raw.startswith(DELIMETERS) and not original_token_raw.startswith(PUNCTUATION) and glittered_window:
                     last_token = glittered_window.pop()
+
                     prob = last_token.probability * prob 
                     original_token = last_token.original_token + original_token 
                     nth = get_approx_order_from_probability(prob, sorted_tokens)
                     top_tokens = last_token.top_k_tokens
-                elif not glittered_window and not original_token.startswith(" ") and not glittered_window:
+                # First word is always p=1    
+                elif not glittered_window and not original_token_raw.startswith(DELIMETERS) and not glittered_window:
                     nth = 1
                     prob = 1.0
-                    
+                elif original_token_raw.startswith(DELIMETERS) and not original_token.startswith(" "):
+                    original_token = " " + original_token
+                
 
                 glittered_window.append(GlitteredToken(original_token, nth, prob, top_tokens))
         return glittered_window
@@ -255,6 +264,7 @@ class GlitterGenerativeModel(GlitterModel):
 
         # Step 2: Tokenize the full prompt with chat template
         tokenized_full = self.tokenizer(chat_prompt, return_tensors="pt")["input_ids"][0]
+
 
         # Step 3: Tokenize user text alone to find how many tokens to keep
         user_only_tokens = self.tokenizer(text, return_tensors="pt")["input_ids"][0]
@@ -303,5 +313,6 @@ class GlitterGenerativeModel(GlitterModel):
                                                    top_k=top_k)
             for token in glittered_window:
                 gt.append(token)
+                
 
         return self.__glittered_text_postprocessing__(gt)

@@ -42,7 +42,7 @@ def load_models(verbose=False):
             model = AVAILABLE_MODELS[model_name]()
             models[model.name] = model
             if verbose:
-                print(f"   - {model.name}")
+                print(f"   - {model.name} ({model.device})")
         except Exception as e:
             if verbose:
                 print(f"   - {model_name} failed to load: {e}")

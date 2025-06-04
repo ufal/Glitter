@@ -80,6 +80,16 @@ def glitter_text_request():
 ######################################################################################
 # Server
 
+
+def detect_cuda():
+    try:
+        import torch
+        return torch.cuda.is_available()
+    except ImportError:
+        return False
+
+
+
 if __name__ == "__main__":
     args = get_server_args()
 
@@ -94,5 +104,10 @@ if __name__ == "__main__":
 
     if args.silent:
         SILENT_MODE = True
+
+    if detect_cuda():
+        print("CUDA is available")
+    else:
+        print("CUDA is NOT available, running on CPU")
 
     app.run(host=args.host, port=args.port, debug=args.debug)

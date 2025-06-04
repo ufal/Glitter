@@ -214,6 +214,7 @@ class GlitterGenerativeModel(GlitterModel):
 
         # Forward pass through the model to get logits
         print(tokenized_text)
+        last_sorted_tokens = []
         with torch.no_grad():  # Disable gradient calculation for faster inference
             outputs = self.model(**tokenized_text, return_dict=True)  # this is 2D
             glittered_window = []
@@ -227,36 +228,43 @@ class GlitterGenerativeModel(GlitterModel):
                 original_token = self.tokenizer.decode(tokenized_text["input_ids"][0][-(i + 1)].item())
                 nth, prob = get_order_and_probability_of_original_token(original_token, sorted_tokens)
                 top_tokens = sorted_tokens[:top_k]
-    
+                
+                print(original_token_raw)
                 if not original_token_raw.startswith(DELIMETERS) and not original_token_raw.startswith(PUNCTUATION) and glittered_window:
                     last_token = glittered_window.pop()
+                    print(f"Multiplying {last_token.probability:.4f} * {prob:.4f} = {last_token.probability * prob :.4f} to combine {last_token.original_token} and {original_token}")
 
                     prob = last_token.probability * prob 
                     original_token = last_token.original_token + original_token 
-                    nth = get_approx_order_from_probability(prob, sorted_tokens)
+                    nth = get_approx_order_from_probability(prob, last_sorted_tokens)
+                    print(f" {nth}th place in {last_sorted_tokens[:5]}...")
                     top_tokens = last_token.top_k_tokens
                 # First word is always p=1    
                 elif not glittered_window and not original_token_raw.startswith(DELIMETERS) and not glittered_window:
                     nth = 1
                     prob = 1.0
-                elif original_token_raw.startswith(DELIMETERS) and not original_token.startswith(" "):
-                    original_token = " " + original_token
-                
+                elif original_token_raw.startswith(DELIMETERS): 
+                    if not original_token.startswith(" "):
+                        original_token = " " + original_token
+                    last_sorted_tokens = sorted_tokens
+
+                    
 
                 glittered_window.append(GlitteredToken(original_token, nth, prob, top_tokens))
         return glittered_window
 
 
-    def glitter_text_alt(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
+    def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k
 
         # Step 1: Prepare chat template
-        system_prompt = "You are a helpful assistant."
+        system_prompt = "You are a school kid with no legal knowledge." #"You are a legal expert."
         messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": text}
+            {"role": "system", "content": f" {system_prompt} "},
+            {"role": "user", "content": f" Tell me something. "},
+            {"role": "assistant", "content": f" {text} "}
         ]
         chat_prompt = self.tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
@@ -272,26 +280,35 @@ class GlitterGenerativeModel(GlitterModel):
 
         # Step 4: Prepare for glittering
         gt = GlitteredText(models=[self.name])
-        gt.append(GlitteredToken(self.tokenizer.decode(tokenized_full[num_template_tokens].item()), 1, 1.0, []))
+     #   gt.append(GlitteredToken(self.tokenizer.decode(tokenized_full[num_template_tokens].item()), 1, 1.0, []))
 
         iterator = GPTContextWindow(tokenized_full, self.context_window_size)
         if not silent:
             iterator = track(iterator, description="Glittering...", total=len(tokenized_full))
 
         for last_n_tokens, cw in iterator:
-            glittered_window = self.glitter_window(convert_list_of_tokens_to_tensor(cw),
-                                                   last_n_tokens,
-                                                   top_k=top_k)
-            for token in glittered_window:
-                # Step 5: Only keep tokens that fall outside the template portion
-                token_index = token.position  # assuming GlitteredToken includes token position
-                if token_index >= num_template_tokens:
-                    gt.append(token)
+            glittered_window = self.glitter_window(convert_list_of_tokens_to_2D_tensor(cw),
+                                                   last_n_tokens, top_k=top_k)
 
+      #      for token_index, token in enumerate(glittered_window):
+      #          # Step 5: Only keep tokens that fall outside the template portion
+      #         if token_index >= num_template_tokens:
+      #              gt.append(token)
+        chat_template = True
+        for token in glittered_window:
+
+            print(f"{token.original_token}: {token.nth}th : {token.probability}")
+            if token.original_token.strip() == "</s>":
+                chat_template = True
+            if not chat_template:
+                gt.append(token)
+            if token.original_token.strip() == "<|assistant|>":
+                chat_template = False
+            
         return self.__glittered_text_postprocessing__(gt)
 
 
-    def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
+    def glitter_text_old(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k

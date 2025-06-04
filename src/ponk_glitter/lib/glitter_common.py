@@ -88,7 +88,13 @@ class GlitteredToken:
     def __str__(self) -> str:
         # rich color output
         return f"[{self.HEATMAP_TERMINAL_COLORS[self.__get_heatmap_color_index__()]}]{self.original_token}[/]"
-
+    
+    def __sub__(self, token):
+        if not isinstance(token, GlitteredToken):
+            raise TypeError("Subtraction only supported between GlitteredToken instances.")
+        probability = max(0, self.probability - token.probability)
+        nth = max(0, self.nth - token.nth)
+        return GlitteredToken(self.original_token, nth, probability, self.top_k_tokens)
 
 class GlitteredText:
     """

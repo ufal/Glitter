@@ -252,15 +252,11 @@ class GlitterGenerativeModel(GlitterModel):
 
                 glittered_window.append(GlitteredToken(original_token, nth, prob, top_tokens))
         return glittered_window
-
-
-    def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
-        text = self.__text_preprocessing__(text)
-        if top_k is None:
-            top_k = self.top_k
-
+    
+    
+    def glitter_with_prompt(self, prompt, text, top_k, silent=False):
         # Step 1: Prepare chat template
-        system_prompt = "You are a school kid with no legal knowledge." #"You are a legal expert."
+        system_prompt = prompt #
         messages = [
             {"role": "system", "content": f" {system_prompt} "},
             {"role": "user", "content": f" Tell me something. "},
@@ -271,29 +267,15 @@ class GlitterGenerativeModel(GlitterModel):
         )
 
         # Step 2: Tokenize the full prompt with chat template
-        tokenized_full = self.tokenizer(chat_prompt, return_tensors="pt")["input_ids"][0]
-
-
-        # Step 3: Tokenize user text alone to find how many tokens to keep
-        user_only_tokens = self.tokenizer(text, return_tensors="pt")["input_ids"][0]
-        num_template_tokens = tokenized_full.shape[0] - user_only_tokens.shape[0]
-
-        # Step 4: Prepare for glittering
-        gt = GlitteredText(models=[self.name])
-     #   gt.append(GlitteredToken(self.tokenizer.decode(tokenized_full[num_template_tokens].item()), 1, 1.0, []))
-
-        iterator = GPTContextWindow(tokenized_full, self.context_window_size)
+        tokenized = self.tokenizer(chat_prompt, return_tensors="pt")["input_ids"][0]   
+        iterator = GPTContextWindow(tokenized, self.context_window_size)
         if not silent:
-            iterator = track(iterator, description="Glittering...", total=len(tokenized_full))
+            iterator = track(iterator, description="Glittering...", total=len(tokenized))
 
         for last_n_tokens, cw in iterator:
             glittered_window = self.glitter_window(convert_list_of_tokens_to_2D_tensor(cw),
                                                    last_n_tokens, top_k=top_k)
-
-      #      for token_index, token in enumerate(glittered_window):
-      #          # Step 5: Only keep tokens that fall outside the template portion
-      #         if token_index >= num_template_tokens:
-      #              gt.append(token)
+        gt = []
         chat_template = True
         for token in glittered_window:
 
@@ -304,8 +286,49 @@ class GlitterGenerativeModel(GlitterModel):
                 gt.append(token)
             if token.original_token.strip() == "<|assistant|>":
                 chat_template = False
+        return gt
+
+
+    def glitter_text_as_diff(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
+        text = self.__text_preprocessing__(text)
+        if top_k is None:
+            top_k = self.top_k
+
+
+        glittered_text_laymen = self.glitter_with_prompt("You are a school kid with no legal knowledge.", text, top_k, silent)
+        glittered_text_expert = self.glitter_with_prompt("You are a legal expert.", text, top_k, silent)
+
+        # Step 4: Prepare for glittering
+        gt = GlitteredText(models=[self.name])
+
+        print(len(glittered_text_laymen))
+        print(len(glittered_text_expert))
+        chat_template = True
+        for token_laymen, token_expert in zip(glittered_text_laymen, glittered_text_expert):
+            print(f"{token_laymen.original_token}: {token_laymen.nth}th : {token_laymen.probability}")
+            print(f"{token_expert.original_token}: {token_expert.nth}th : {token_expert.probability}")
+            gt.append(token_laymen - token_expert)
+
             
         return self.__glittered_text_postprocessing__(gt)
+    
+
+    def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
+        text = self.__text_preprocessing__(text)
+        if top_k is None:
+            top_k = self.top_k
+
+
+        # Step 4: Prepare for glittering
+        gt = GlitteredText(models=[self.name])
+
+        glittered_text = self.glitter_with_prompt("You are a school kid with no legal knowledge.", text, top_k, silent)
+        for token in glittered_text:
+            gt.append(token)
+            
+        return self.__glittered_text_postprocessing__(gt)
+
+
 
 
     def glitter_text_old(self, text: str, top_k: int = None, silent=False) -> GlitteredText:

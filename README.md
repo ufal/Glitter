@@ -3,14 +3,13 @@ Glitter is set of tools for visualising lexical surprise by analysing entropy of
 of large language models. This can be used for research of text readability.
 
 ## Usage
-- `make download-models` - downloads natively supported models
-- `make`/`make run` - runs glitter server on localhost with port 4000
+- `make`/`make run` - runs glitter server on _localhost_ with port _4000_
 
 
 ## Documetation
-- ### [Glitter CLI](https://gitlab.mff.cuni.cz/teaching/nprg045/kvapilikova/ponk-glitter/-/blob/master/docs/glitter_cli.md?ref_type=heads)
-- ### [Glitter server](https://gitlab.mff.cuni.cz/teaching/nprg045/kvapilikova/ponk-glitter/-/blob/master/docs/glitter_server.md?ref_type=heads)
-- ### [Model interface](https://gitlab.mff.cuni.cz/teaching/nprg045/kvapilikova/ponk-glitter/-/blob/master/docs/model_interface.md?ref_type=heads)
+- ### [Glitter CLI](https://github.com/ufal/Glitter/blob/master/docs/glitter_cli.md)
+- ### [Glitter server](https://github.com/ufal/Glitter/blob/master/docs/glitter_server.md)
+- ### [Model interface](https://github.com/ufal/Glitter/blob/master/docs/model_interface.md)
 
 
 ## Models

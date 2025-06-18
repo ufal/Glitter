@@ -220,15 +220,16 @@ class GlitterGenerativeModel(GlitterModel):
                     continue
                 logits = outputs.logits[-i - 2, :].detach().cpu()
                 probs = torch.nn.functional.softmax(logits, dim=-1)
-                sorted_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer)
-                original_token = self.tokenizer.decode(tokenized_text["input_ids"][-(i + 1)].item())
-                nth, prob = get_order_and_probability_of_original_token(original_token, sorted_tokens)
-                top_tokens = sorted_tokens[:top_k]
-                if not original_token.startswith(PUNCTUATION)and glittered_window:
+                original_token_id = tokenized_text["input_ids"][-(i + 1)].item()
+                original_token = self.tokenizer.decode(original_token_id)
+                prob = probs[original_token_id].item()
+                nth = get_rank_from_probability(probs, prob)
+                top_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer, 5)
+                if not original_token.startswith(PUNCTUATION) and glittered_window:
                     last_token = glittered_window.pop()
                     prob = last_token.probability * prob 
                     original_token = last_token.original_token + original_token 
-                    nth = get_approx_order_from_probability(prob, sorted_tokens)
+                    nth = get_rank_from_probability(probs, prob)
                     top_tokens = last_token.top_k_tokens
                 elif not glittered_window and not original_token.startswith(" ") and not glittered_window:
                     nth = 1
@@ -266,5 +267,5 @@ class GlitterGenerativeModel(GlitterModel):
 
         end = datetime.now()
         print(f"Finished {end}")
-        print(f"Gliiering took {end-start} seconds.")
+        print(f"Glittering took {end-start} seconds.")
         return self.__glittered_text_postprocessing__(gt)

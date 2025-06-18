@@ -187,6 +187,12 @@ def convert_list_of_tokens_to_tensor(tokenized_text: torch.Tensor) -> Dict[str, 
     return {"input_ids": torch.tensor(tokenized_text), "attention_mask": torch.ones(len(tokenized_text))}
 
 
+def get_rank_from_probability(probs: torch.Tensor, prob: float) -> int:
+    # Approximate rank = count of tokens with greater prob
+    approx_rank = (probs > prob).sum().item() + 1  # +1 to make it 1-based
+    return approx_rank
+
+
 def get_tokens_sorted_by_probability(logits: torch.Tensor,
                                      tokenizer,
                                      top_k: Optional[int] = None) -> List[Tuple[str, float]]:

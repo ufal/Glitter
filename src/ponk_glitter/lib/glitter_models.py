@@ -124,7 +124,7 @@ class GlitterUnmaskingModel(GlitterModel):
                          top_k)
         self.model_type = "unmasking"
         self.model_path = model_path
-        self.model = AutoModelForMaskedLM.from_pretrained(model_path)  # .to(self.device)
+        self.model = AutoModelForMaskedLM.from_pretrained(model_path).to(self.device).eval()
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.pipeline = pipeline("fill-mask", model=self.model, tokenizer=self.tokenizer)
 
@@ -196,7 +196,7 @@ class GlitterGenerativeModel(GlitterModel):
                          top_k)
         self.model_type = "generative"
         self.model_path = model_path
-        self.model = AutoModelForCausalLM.from_pretrained(model_path).eval()
+        self.model = AutoModelForCausalLM.from_pretrained(model_path).to(self.device).eval()
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.top_k = self.tokenizer.vocab_size
         if context_window_size is None:
@@ -209,7 +209,6 @@ class GlitterGenerativeModel(GlitterModel):
                        top_k: int) -> List[GlitteredToken]:
         print(f"Window length: {len(tokenized_text['input_ids'])}")
         # Move to GPU if available
-        self.model.to(self.device)
         tokenized_text = {k: v.to(self.device) for k, v in tokenized_text.items()}
         # Forward pass through the model to get logits
         with torch.no_grad():  # Disable gradient calculation for faster inference

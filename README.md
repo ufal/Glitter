@@ -2,14 +2,16 @@
 Glitter is set of tools for visualising lexical surprise by analysing entropy of outputs
 of large language models. This can be used for research of text readability.
 
+PONK project: [ufal.mff.cuni.cz/ponk](https://ufal.mff.cuni.cz/ponk)
+
 ## Usage
 - `make`/`make run` - runs glitter server on _localhost_ with port _4000_
 
 
-## Documetation
-- ### [Glitter CLI](https://github.com/ufal/Glitter/blob/master/docs/glitter_cli.md)
-- ### [Glitter server](https://github.com/ufal/Glitter/blob/master/docs/glitter_server.md)
-- ### [Model interface](https://github.com/ufal/Glitter/blob/master/docs/model_interface.md)
+## Documentation
+- [Glitter CLI](https://github.com/ufal/Glitter/blob/master/docs/glitter_cli.md)
+- [Glitter server](https://github.com/ufal/Glitter/blob/master/docs/glitter_server.md)
+- [Model interface](https://github.com/ufal/Glitter/blob/master/docs/model_interface.md)
 
 
 ## Models
@@ -22,7 +24,8 @@ Currently natively supported models:
 - [GPT2](https://huggingface.co/openai-community/gpt2)
 - [Legal Czech Roberta (base)](https://huggingface.co/joelniklaus/legal-czech-roberta-base)
 
-For automatic model download run `make download-models` in project root directory.
+Glitter will look for models locally first. If some model is not available it will
+download it automatically.
 
 
 ## License

@@ -5,6 +5,7 @@ import torch
 from rich import print
 from rich.progress import track
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType, AutoModelForCausalLM
+from datetime import datetime
 
 from lib.context_window import TokenizedMaskedContextWindow, GPTContextWindow
 from lib.glitter_common import *
@@ -206,7 +207,10 @@ class GlitterGenerativeModel(GlitterModel):
                        tokenized_text: {str: torch.Tensor},
                        n_last_related_tokens: int,
                        top_k: int) -> List[GlitteredToken]:
-
+        print(f"Window length: {len(tokenized_text['input_ids'])}")
+        # Move to GPU if available
+        self.model.to(self.device)
+        tokenized_text = {k: v.to(self.device) for k, v in tokenized_text.items()}
         # Forward pass through the model to get logits
         with torch.no_grad():  # Disable gradient calculation for faster inference
             outputs = self.model(**tokenized_text)  # this is 2D
@@ -236,6 +240,8 @@ class GlitterGenerativeModel(GlitterModel):
 
 
     def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
+        start = datetime.now()
+        print(f"Started {start}")
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k
@@ -258,4 +264,7 @@ class GlitterGenerativeModel(GlitterModel):
             for token in glittered_window:
                 gt.append(token)
 
+        end = datetime.now()
+        print(f"Finished {end}")
+        print(f"Gliiering took {end-start} seconds.")
         return self.__glittered_text_postprocessing__(gt)

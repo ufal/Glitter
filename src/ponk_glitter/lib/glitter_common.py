@@ -113,7 +113,8 @@ class GlitteredText:
         for i, tok in enumerate(self.content[start_from:finish_at]):
             if tok.original_token.strip() == conllu_token["form"].strip():
                 return tok, i + start_from
-        print("WARNING: Token '{conllu_token['form']}' not found in Glittered text, moving to next token")
+        
+        print(f"WARNING: Token '{conllu_token['form'].strip()}' not found in Glittered text, moving to next token")
         return None, start_from
 
     def to_json(self):
@@ -138,15 +139,24 @@ class GlitteredText:
         output = ""
         start_from = 0
         finish_at = 5
+        errors = 0
         for sentence in conllu_data:
             for conllu_token in sentence:
                 glittered_token, pos = self.find_token(conllu_token, start_from, finish_at)
                 if glittered_token:
+                    errors = 0
                     conllu_token["misc"]["PonkApp2:Surprisal"] = glittered_token.surprisal
                     conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % glittered_token.probability
                     conllu_token["misc"]["PonkApp2:VocabRank"] = glittered_token.nth
                     start_from = pos + 1
                     finish_at += 1
+                elif errors < 3:
+                    conllu_token["misc"]["PonkApp2:Surprisal"] = 1
+                    conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % 1.0
+                    conllu_token["misc"]["PonkApp2:VocabRank"] = 1
+                    errors += 1
+                    finish_at += 1
+
             output += sentence.serialize()
         return output
     

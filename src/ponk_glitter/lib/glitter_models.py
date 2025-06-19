@@ -13,7 +13,7 @@ from lib.glitter_common import *
 logging.set_verbosity(logging.CRITICAL)
 
 AVAILABLE_MODELS = {}
-PUNCTUATION = (" ",".",",","?","!",":",";","'",'"')
+PUNCTUATION = (".",",","?","!",":",";","'",'"')
 
 
 def register_model(name):
@@ -224,7 +224,13 @@ class GlitterGenerativeModel(GlitterModel):
                 prob = probs[original_token_id].item()
                 nth = get_rank_from_probability(probs, prob)
                 top_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer, 5)
-                if not original_token.startswith(PUNCTUATION) and glittered_window:
+                next_token_id = tokenized_text["input_ids"][-i].item() 
+                next_token = self.tokenizer.decode(next_token_id)
+                if next_token.isdigit() and original_token in [".",","] and glittered_window[-1].original_token.isdigit():
+                    decimal_point = True
+                else:
+                    decimal_point = False
+                if  glittered_window and (not (original_token.startswith(" ") or original_token.startswith(PUNCTUATION)) or decimal_point):
                     last_token = glittered_window.pop()
                     prob = last_token.probability * prob 
                     original_token = last_token.original_token + original_token 
@@ -234,7 +240,6 @@ class GlitterGenerativeModel(GlitterModel):
                     nth = 1
                     prob = 1.0
                     
-
                 glittered_window.append(GlitteredToken(original_token, nth, prob, top_tokens))
         return glittered_window
 

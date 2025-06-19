@@ -69,7 +69,8 @@ def glitter_text_to_conllu(conllu_string: str, model_name: str) -> str:
     text_to_glitter = ""
     for sentence in conllu_data:
         if "text" in sentence.metadata:
-           text_to_glitter += f'{sentence.metadata["text"]} '
+            for word in sentence:
+                text_to_glitter += f'{word["form".strip()] } '
     glittered_text = model.glitter_text(text_to_glitter, silent=SILENT_MODE)
     return glittered_text.to_conllu(conllu_data)
 

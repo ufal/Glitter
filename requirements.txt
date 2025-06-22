@@ -49,7 +49,7 @@ starlette==0.37.1
 swagger_ui_bundle==1.1.0
 sympy==1.12
 tokenizers==0.15.2
-torch==2.2.1
+torch==2.7.1
 tqdm==4.66.2
 transformers==4.38.1
 typing_extensions==4.10.0

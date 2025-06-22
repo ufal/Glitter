@@ -1,8 +1,6 @@
 import html
 import json
 from typing import List, Tuple, Dict, Optional
-from conllu import parse_incr
-from collections import deque
 
 from jinja2 import Template
 from torch import torch

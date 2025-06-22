@@ -14,7 +14,7 @@ class GPTContextWindowTests(unittest.TestCase):
             (4, [1, 2, 3, 4]),  # first window
             (2, [3, 4, 5, 6]),  # overlapping window
             (2, [5, 6, 7, 8]),
-            (1, [6, 7, 8, 9])  # last window
+            (1, [6, 7, 8, 9])   # last window
         ]
 
         for i, window in zip_longest(range(len(expected)), context_window):
@@ -27,7 +27,7 @@ class GPTContextWindowTests(unittest.TestCase):
         expected = [
             (5, [1, 2, 3, 4, 5]),  # first window
             (2, [3, 4, 5, 6, 7]),  # overlapping window
-            (2, [5, 6, 7, 8, 9])  # last window
+            (2, [5, 6, 7, 8, 9])   # last window
         ]
 
         for i, window in zip_longest(range(len(expected)), context_window):
@@ -56,3 +56,4 @@ class GPTContextWindowTests(unittest.TestCase):
         self.assertEqual(3, len(GPTContextWindow([1, 2, 3, 4, 5, 6, 7, 8, 9], 5)))
         self.assertEqual(1, len(GPTContextWindow([1, 2, 3], 5)))
         self.assertEqual(1, len(GPTContextWindow([1, 2, 3, 4, 5], 5)))
+

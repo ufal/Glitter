@@ -5,6 +5,7 @@ of large language models. This can be used for research of text readability.
 PONK project: [ufal.mff.cuni.cz/ponk](https://ufal.mff.cuni.cz/ponk)
 
 ## Usage
+- `make install` - creates virtual environment and installs all dependencies
 - `make`/`make run` - runs glitter server on _localhost_ with port _4000_
 
 

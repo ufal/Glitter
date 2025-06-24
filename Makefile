@@ -11,7 +11,7 @@ PIP = $(VENV)/bin/pip
 
 install: requirements.txt
 	python3 -m venv $(VENV)
-	$(PIP) install -r requirements.txt
+	$(PIP) install -r requirements.txt --upgrade
 
 
 run: $(VENV)/bin/activate

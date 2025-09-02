@@ -30,5 +30,5 @@ download it automatically.
 
 
 ## License
-All code is licensed under [GPLv3 license](https://www.gnu.org/licenses/gpl-3.0.en.html)
+All code is licensed under [GPLv3 license](https://www.gnu.org/licenses/gpl-3.0.en.html).
 

@@ -1,6 +1,8 @@
 import html
 import json
+import sys
 from typing import List, Tuple, Dict, Optional
+import math
 
 from jinja2 import Template
 from torch import torch
@@ -38,6 +40,10 @@ class GlitteredToken:
 
     def __init__(self, original_token: str, nth: int, probability: float, top_k_tokens: List[Tuple[str, float]]):
         self.probability = probability
+        try:
+            self.neglogprob =  -math.log2(probability)
+        except:
+            self.neglogprob = math.inf
         self.original_token = original_token
         self.top_k_tokens = top_k_tokens
         self.nth = nth
@@ -108,11 +114,13 @@ class GlitteredText:
     def find_token(self, conllu_token,  start_from, finish_at):
         start_from = min(start_from, len(self.content) - 1)
         finish_at = min(finish_at, len(self.content) - 1)
+        glittered_text = [tok.original_token.strip() for tok in self.content[start_from:finish_at]]
         for i, tok in enumerate(self.content[start_from:finish_at]):
             if tok.original_token.strip() == conllu_token["form"].strip():
+                if i > 0:
+                    print(f"WARNING: Skipping {i} glittered tokens: {glittered_text[:i]}", file=sys.stderr)
                 return tok, i + start_from
-        
-        print(f"WARNING: Token '{conllu_token['form'].strip()}' not found in Glittered text, moving to next token")
+        print(f"WARNING: Token '{conllu_token['form'].strip()}' not found in Glittered text {glittered_text}, moving to next token", file=sys.stderr)
         return None, start_from
 
     def to_json(self):
@@ -140,20 +148,29 @@ class GlitteredText:
         errors = 0
         for sentence in conllu_data:
             for conllu_token in sentence:
+                #print(conllu_token)
                 glittered_token, pos = self.find_token(conllu_token, start_from, finish_at)
-                if glittered_token:
-                    errors = 0
-                    conllu_token["misc"]["PonkApp2:Surprisal"] = glittered_token.surprisal
-                    conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % glittered_token.probability
-                    conllu_token["misc"]["PonkApp2:VocabRank"] = glittered_token.nth
-                    start_from = pos + 1
-                    finish_at += 1
-                elif errors < 3:
-                    conllu_token["misc"]["PonkApp2:Surprisal"] = 1
-                    conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % 1.0
-                    conllu_token["misc"]["PonkApp2:VocabRank"] = 1
-                    errors += 1
-                    finish_at += 1
+                try: 
+                    if glittered_token:
+                        errors = 0
+                        if glittered_token.probability > 0:
+                            conllu_token["misc"]["PonkApp2:Surprisal"] = glittered_token.surprisal
+                            conllu_token["misc"]["PonkApp2:NegLogProb"] = "%.5f" % glittered_token.neglogprob
+                            conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % glittered_token.probability
+                            conllu_token["misc"]["PonkApp2:VocabRank"] = glittered_token.nth
+                        else:
+                            print(f"WARNING: Token '{conllu_token}' has zero probability.", file=sys.stderr)
+                        start_from = pos + 1
+                        finish_at = start_from + 5
+                    elif errors < 3:
+                        conllu_token["misc"]["PonkApp2:Surprisal"] = 1
+                        conllu_token["misc"]["PonkApp2:NegLogProb"] = 0 
+                        conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % 1.0
+                        conllu_token["misc"]["PonkApp2:VocabRank"] = 1
+                        errors += 1
+                        finish_at += 5
+                except:
+                    print(f"WARNING: Token '{conllu_token}' does not have the misc attribute.", file=sys.stderr)
 
             output += sentence.serialize()
         return output

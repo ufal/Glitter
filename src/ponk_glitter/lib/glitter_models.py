@@ -6,6 +6,7 @@ from rich import print
 from rich.progress import track
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType, AutoModelForCausalLM
 from datetime import datetime
+import kenlm
 
 from lib.context_window import TokenizedMaskedContextWindow, GPTContextWindow
 from lib.glitter_common import *
@@ -237,8 +238,8 @@ class GlitterGenerativeModel(GlitterModel):
                     nth = get_rank_from_probability(probs, prob)
                     top_tokens = last_token.top_k_tokens
                 elif not glittered_window and not original_token.startswith(" "):
-                    nth = 1
-                    prob = 1.0
+                    nth = 14
+                    prob = 0.0
                     
                 glittered_window.append(GlitteredToken(original_token, nth, prob, top_tokens))
         return glittered_window
@@ -256,7 +257,7 @@ class GlitterGenerativeModel(GlitterModel):
         tokenized_text = self.tokenizer.encode(text, return_tensors="pt")[-1]
 
         # Add first token
-        gt.append(GlitteredToken(self.tokenizer.decode(tokenized_text[0].item()), 1, 1.0, []))
+        gt.append(GlitteredToken(self.tokenizer.decode(tokenized_text[0].item()), 14, 0.0, []))
 
         iterator = GPTContextWindow(tokenized_text, self.context_window_size)
         if not silent:
@@ -273,3 +274,70 @@ class GlitterGenerativeModel(GlitterModel):
         print(f"Finished {end}")
         print(f"Glittering took {end-start} seconds.")
         return self.__glittered_text_postprocessing__(gt)
+
+
+
+class GlitterNgramModel(GlitterModel):
+
+    """
+    Base class for Glitter models of the ngram type.
+    WIP
+    """
+
+    def __init__(self, name: str,
+                 lang: str,
+                 model_path: str,
+                 context_window_size: int = None,
+                 top_k: Optional[int] = None
+                 ) -> None:
+        super().__init__(name,
+                         lang,
+                         context_window_size,
+                         top_k)
+        self.model_type = "ngram"
+        self.model_path = model_path
+        self.model = kenlm.Model(model_path)
+        self.tokenizer = ""
+        self.top_k = 1000000
+        if context_window_size is None:
+            # set to the maximum possible value (n_positions)
+            self.context_window_size = self.model.config.n_positions
+
+    def glitter_window(self,
+                       tokenized_text: {str: torch.Tensor},
+                       n_last_related_tokens: int,
+                       top_k: int) -> List[GlitteredToken]:
+        glittered_window = []
+        text = " ".join(tokenized_text)
+        i = 0
+        border = len(tokenized_text) - n_last_related_tokens
+        for (log10p, used_order, oov), tok in zip(
+            self.model.full_scores(text, bos=False, eos=False), tokenized_text):
+            prob = 10 ** log10p 
+            #print(f"{tok}\t{prob}")
+            if i >=  border:
+                glittered_window.append(GlitteredToken(tok + " ", 0, prob, [])) # [("",0), ("",0), ("",0), ("",0), ("",0)]))
+            i += 1
+        return glittered_window
+
+    def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
+        start = datetime.now()
+        print(f"Started {start}")
+        text = self.__text_preprocessing__(text)
+        tokenized_text = text.split()
+        gt = GlitteredText(models=[self.name])
+        iterator = GPTContextWindow(tokenized_text, self.context_window_size)
+        if not silent:
+            iterator = track(iterator, description="Glittering...", total=len(tokenized_text))
+
+        for last_n_tokens, cw in iterator:
+            glittered_window = self.glitter_window(cw, last_n_tokens, top_k)
+            for token in glittered_window:
+                gt.append(token)
+            #print(f"first window token: {glittered_window[0]}")
+            #print(f"last window token: {glittered_window[-1]}")
+        end = datetime.now()
+        print(f"Finished {end}")
+        print(f"Glittering took {end-start} seconds.")
+        return self.__glittered_text_postprocessing__(gt)
+

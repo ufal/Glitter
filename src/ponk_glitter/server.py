@@ -8,7 +8,7 @@ from lib.glitter_models import load_models, categorize_models
 
 MODELS = load_models(verbose=True)
 CATEGORIZED_MODELS = categorize_models(MODELS)
-COLOR_MODES = ("heatmap", "simple")
+COLOR_MODES = ("heatmap-logprob-uniform", "heatmap-logprob-custom", "heatmap-nth", "simple-nth")
 SILENT_MODE = False
 
 app = Flask(__name__, static_folder="static")

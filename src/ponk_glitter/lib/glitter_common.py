@@ -13,9 +13,11 @@ class GlitteredToken:
     This class represents a token that has been glittered by a model.
     It contains the original token, the probability of the token, the position of the token in the top-k list
     """
-    HEATMAP_CATEGORIES = tuple(enumerate([1, 3, 5, 10, 15, 25, 50, 75, 100,
+    HEATMAP_CATEGORIES_NTH = tuple(enumerate([1, 3, 5, 10, 15, 25, 50, 75, 100,
                                           250, 500, 1000, 5000, 10000, 15000, 20000]))
-    SIMPLE_CATEGORY = ((0, 1), (3, 10), (7, 100), (10, 1000), (14, 10000))
+    HEATMAP_CATEGORIES_UNIFORM = tuple(enumerate([2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]))
+    HEATMAP_CATEGORIES_CUSTOM = tuple(enumerate([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 22, 28]))
+    SIMPLE_CATEGORIES_NTH = ((0, 1), (3, 10), (7, 100), (10, 1000), (14, 10000))
     # from cold to hot
     HEATMAP_TERMINAL_COLORS = ["blue1", "dodger_blue1", "deep_sky_blue3", "cyan1",
                                "spring_green1", "green1", "chartreuse1", "yellow1",
@@ -58,22 +60,30 @@ class GlitteredToken:
             "top_5": self.top_k_tokens[:5]
         }
 
-    def __get_heatmap_color_index__(self, color_map=HEATMAP_CATEGORIES) -> int:
+    def __get_heatmap_color_index__(self, map_type="nth", color_map=HEATMAP_CATEGORIES_NTH) -> int:
         color_index = 15
         for i, category in color_map:
-            if self.nth <= category:
+            if (self.neglogprob <= category and map_type == "logprob") or (self.nth <= category and map_type == "nth"):
                 color_index = i
                 break
         return color_index
 
     def to_html(self, color_mode="heatmap") -> str:
         color_mode = color_mode.lower()
-        if color_mode == "simple":
-            color_map = self.SIMPLE_CATEGORY
+        if color_mode == "heatmap-logprob-uniform":
+            color_map = self.HEATMAP_CATEGORIES_UNIFORM
+            map_type = "logprob"
+        elif color_mode == "heatmap-logprob-custom":
+            color_map = self.HEATMAP_CATEGORIES_CUSTOM
+            map_type = "logprob"
+        elif color_mode == "simple-nth":
+            color_map = self.SIMPLE_CATEGORIES_NTH
+            map_type = "nth"
         else:
-            color_map = self.HEATMAP_CATEGORIES
+            color_map = self.HEATMAP_CATEGORIES_NTH
+            map_type = "nth"
 
-        color_index = self.__get_heatmap_color_index__(color_map)
+        color_index = self.__get_heatmap_color_index__(map_type, color_map)
 
         # Render the template with the context
         output = Template(self.__HTML_TEMPLATE).render(

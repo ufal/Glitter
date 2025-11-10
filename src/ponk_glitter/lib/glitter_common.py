@@ -80,7 +80,7 @@ class GlitteredToken:
             heatmap_color_index=color_index,
             original_token=html.escape(self.original_token).replace(" ", "&nbsp;"),
             probability=f"{self.probability:.8f}",
-            nth=self.nth,
+            nth=f"{self.neglogprob:.4f}",
             data=[f"{html.escape(token)} ({prob:.8f})" for token, prob in self.top_k_tokens[:5]]
         )
 
@@ -113,10 +113,10 @@ class GlitteredText:
 
     def find_token(self, conllu_token,  start_from, finish_at):
         start_from = min(start_from, len(self.content) - 1)
-        finish_at = min(finish_at, len(self.content) - 1)
+        finish_at = min(finish_at, len(self.content))
         glittered_text = [tok.original_token.strip() for tok in self.content[start_from:finish_at]]
         for i, tok in enumerate(self.content[start_from:finish_at]):
-            if tok.original_token.strip() == conllu_token["form"].strip():
+            if tok.original_token.strip().lower() == conllu_token["form"].strip().lower():
                 if i > 0:
                     print(f"WARNING: Skipping {i} glittered tokens: {glittered_text[:i]}", file=sys.stderr)
                 return tok, i + start_from
@@ -148,9 +148,11 @@ class GlitteredText:
         errors = 0
         for sentence in conllu_data:
             for conllu_token in sentence:
-                #print(conllu_token)
+        #        print(conllu_token)
                 glittered_token, pos = self.find_token(conllu_token, start_from, finish_at)
                 try: 
+                    if "misc" not in conllu_token or not conllu_token["misc"]:
+                        conllu_token["misc"] = {}
                     if glittered_token:
                         errors = 0
                         if glittered_token.probability > 0:
@@ -163,14 +165,15 @@ class GlitteredText:
                         start_from = pos + 1
                         finish_at = start_from + 5
                     elif errors < 3:
-                        conllu_token["misc"]["PonkApp2:Surprisal"] = 1
-                        conllu_token["misc"]["PonkApp2:NegLogProb"] = 0 
-                        conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % 1.0
-                        conllu_token["misc"]["PonkApp2:VocabRank"] = 1
+                        #conllu_token["misc"]["PonkApp2:Surprisal"] = 1
+                        #conllu_token["misc"]["PonkApp2:NegLogProb"] = 0 
+                        #conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % 1.0
+                        #conllu_token["misc"]["PonkApp2:VocabRank"] = 1
                         errors += 1
                         finish_at += 5
-                except:
-                    print(f"WARNING: Token '{conllu_token}' does not have the misc attribute.", file=sys.stderr)
+                except Exception as e:
+                    print(e)
+                    #print(f"WARNING: Token '{conllu_token}' does not have the misc attribute.", file=sys.stderr)
 
             output += sentence.serialize()
         return output

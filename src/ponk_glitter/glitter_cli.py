@@ -5,7 +5,7 @@ import sys
 from rich import print
 from rich.console import Console
 from rich.table import Table
-from conllu import parse_incr
+from conllu import parse, parse_incr
 
 from lib.arguments import get_cli_args
 from lib.glitter_common import GlitteredText, GlitteredToken
@@ -69,8 +69,10 @@ def read_conllu(filename):
         data = parse_incr(file)
         for sentence in data:
             if "text" in sentence.metadata:
-               text += sentence.metadata["text"]
-               text += " "
+                for word in sentence:
+                    text  += f'{word["form".strip()] } '
+             #  text += sentence.metadata["text"]
+             #  text += " "
     return data, text
 
 
@@ -96,7 +98,7 @@ if __name__ == "__main__":
     else:
         with open(input_file, "r") as file:
             text = file.read()
-    
+    print(text) 
     gt = m.glitter_text(text)
 
     if args.to_json:

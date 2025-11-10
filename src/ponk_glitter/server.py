@@ -70,7 +70,17 @@ def glitter_text_to_conllu(conllu_string: str, model_name: str) -> str:
     for sentence in conllu_data:
         if "text" in sentence.metadata:
             for word in sentence:
-                text_to_glitter += f'{word["form".strip()] } '
+                form = word["form"].strip()
+                lemma =  word["lemma"].strip()
+                #if "misc" not in word or not isinstance(word["misc"], dict):
+                #    print(f"SKIPPING no misc for word {form}")
+                #    continue
+                # Truecase
+                if form[0].isupper() and lemma[0].islower():
+                    text_to_glitter += f'{form.lower()} '
+                else:
+                    text_to_glitter += f'{form} '
+    #print(text_to_glitter)
     glittered_text = model.glitter_text(text_to_glitter, silent=SILENT_MODE)
     return glittered_text.to_conllu(conllu_data)
 
@@ -90,7 +100,7 @@ def glitter_text_request():
 @app.route('/process-conllu', methods=['POST'])
 def process_conllu():
     conllu_string = request.data.decode('utf-8')
-    modified_conllu_string = glitter_text_to_conllu(conllu_string, "GPT-2 XL Czech") 
+    modified_conllu_string = glitter_text_to_conllu(conllu_string, "GPT-2 XL Czech") #"Ngram-5") #"GPT-2 XL Czech") 
     result = {
         'result': modified_conllu_string,
         'colors' : 

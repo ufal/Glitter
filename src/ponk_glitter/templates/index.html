@@ -32,6 +32,18 @@
                                 {% endfor -%}
                             {% endfor -%}
                         </select>
+			<script>
+			  const modelSelect = document.getElementById("model");
+
+			  // Restore previous selection
+			  modelSelect.value = localStorage.getItem("selected_model") || modelSelect.value;
+
+			  // Save selection when changed
+			  modelSelect.addEventListener("change", () => {
+			    localStorage.setItem("selected_model", modelSelect.value);
+			  });
+
+			</script>
                     </div>
                     <div>
                         <label for="color_mode">Choose a color mode:</label>
@@ -43,6 +55,17 @@
                                 </option>
                             {% endfor -%}
                         </select>
+			<script>
+			    const colorSelect = document.getElementById("color_mode");
+
+			    // Restore previous selection
+			    colorSelect.value = localStorage.getItem("selected_color_mode") || colorSelect.value;
+
+			    // Save selection when changed
+			    colorSelect.addEventListener("change", () => {
+			    localStorage.setItem("selected_color_mode", colorSelect.value);
+			    });
+			</script>
                     </div>
                 </div>
                 <label for="text_to_glitter">Text to glitter:</label>

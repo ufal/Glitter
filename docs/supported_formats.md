@@ -1,34 +1,12 @@
 ---
-title: Glitter CLI
-nav_order: 4
+title: Model Interface
+nav_order: 7
 ---
 
-# PONK: Glitter cli
-This is command line interface for PONK glitter tool set.
-
-## Usage
-Usage scheme:
-
-```bash
-glitter_cli.py [-h] [--to-json | --to-html | --to-dict | --to-table | --to-tex] [--output OUTPUT] [--input INPUT] [--model MODEL]
-```
-
-### Options
-- `-h`, `--help`     - show help massega
-- Export formats:
-    - `--to-json`    - export data to JSON
-    - `--to-html`    - export data to HTML
-    - `--to-dict`    - export data to python dictionary format
-    - `--to-table`   - export data to table containing for each token, its probability, order and top 10 candidates
-    - `--to-tex`     - export data as TeX macros
-    - Not choosing any export format will result in printing colored glittered text
-- `--output OUTPUT`  - output file name (default: `stdout`)
-- `--input INPUT`    - input file name (default: `stdin`)
-- `--model MODEL`    - name of model you want to use to glitter text (default: `Robeczech`)
-
-## Formats
+# Supported Formats
 
 ### HTML
+
 Simplified output of glittered text with one token `Ivanka`:
 ```html
 <div class="glittered-text">
@@ -51,6 +29,7 @@ Simplified output of glittered text with one token `Ivanka`:
 ```
 
 ### JSON
+
 Simplified output of glittered text with one token `Bára`:
 ```json
 {
@@ -73,6 +52,7 @@ Simplified output of glittered text with one token `Bára`:
 ```
 
 ### Python dict
+
 Simplified output of glittered text with one token `Silva`:
 ```python
 {'content': [{
@@ -90,7 +70,7 @@ Simplified output of glittered text with one token `Silva`:
 }
 ```
 
-## Examples
+## Ascii table
 
 ### Example 1
 ```bash
@@ -141,14 +121,4 @@ results
 │ [SEP]   │   1   │  0.98804224 │                          [SEP] . ? ? A ! No !  jak  nebo │
 └─────────┴───────┴─────────────┴──────────────────────────────────────────────────────────┘
 ```
-
-### Example 2
-```bash
-echo "Proč si matfyzáci pletou Halloween a Vánoce? Protože OCT 31 = DEC 25." | ./glitter_cli.py
-```
-results in
-```
-[CLS]Proč si matfyzáci pletou Halloween a Vánoce? Protože OCT 31 = DEC 25.[SEP]
-```
-(this output is colored by glitter but this markdown file can not preserve colored text)
 

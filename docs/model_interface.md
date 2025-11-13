@@ -1,3 +1,8 @@
+---
+title: Model Interface
+nav_order: 6
+---
+
 # Model interface
 Glitter is very extensible by design so you can easily add support for new models.
 This is a tutorial how to add new models:

@@ -1,3 +1,8 @@
+---
+title: Glitter server
+nav_order: 5
+---
+
 # Glitter server
 
 ## Usage

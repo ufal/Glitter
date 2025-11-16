@@ -7,6 +7,8 @@ from rich.progress import track
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType, AutoModelForCausalLM
 from datetime import datetime
 import kenlm
+import nltk
+from nltk.tokenize import word_tokenize
 
 from lib.context_window import TokenizedMaskedContextWindow, GPTContextWindow
 from lib.glitter_common import *
@@ -302,6 +304,8 @@ class GlitterNgramModel(GlitterModel):
         if context_window_size is None:
             # set to the maximum possible value (n_positions)
             self.context_window_size = self.model.config.n_positions
+        nltk.download('punkt')
+        nltk.download('punkt_tab')
 
     def glitter_window(self,
                        tokenized_text: {str: torch.Tensor},
@@ -319,6 +323,13 @@ class GlitterNgramModel(GlitterModel):
                 glittered_window.append(GlitteredToken(tok + " ", 0, prob, [])) # [("",0), ("",0), ("",0), ("",0), ("",0)]))
             i += 1
         return glittered_window
+
+    def __text_preprocessing__(self, text: str) -> str:
+        return " ".join(word_tokenize(text, language="czech"))
+
+    @staticmethod
+    def __glittered_text_postprocessing__(glittered_text: GlitteredText) -> GlitteredText:
+        return glittered_text
 
     def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
         start = datetime.now()

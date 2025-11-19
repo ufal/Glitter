@@ -31,7 +31,8 @@ class GlitteredToken:
         <span class="gt-heatmap-{{- heatmap_color_index -}}">{{ original_token }}</span>
             <div class="gt-context">
                 <span class="gt-probability">P: {{ probability -}}</span>
-                <span class="gt-nth">N: {{ nth -}}</span>
+                <span class="gt-probability">Surprisal: {{ surprisal -}}</span>
+                <span class="gt-probability">N: {{ nth -}}</span>
                 <hr>
                 <ol>
                     {% for item in data -%}
@@ -93,7 +94,8 @@ class GlitteredToken:
             heatmap_color_index=color_index,
             original_token=html.escape(self.original_token).replace(" ", "&nbsp;"),
             probability=f"{self.probability:.8f}",
-            nth=f"{self.neglogprob:.4f}",
+            surprisal=f"{self.neglogprob:.2f}",
+            nth=f"{self.nth}",
             data=[f"{html.escape(token)} ({prob:.8f})" for token, prob in self.top_k_tokens[:5]]
         )
 

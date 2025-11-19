@@ -48,7 +48,11 @@ def get_cli_args():
                                 default=False,
                                 action="store_true",
                                 help="export data in conllu format for PONK integration")
-
+    export_options.add_argument("--to-summary",
+                                default=False,
+                                action="store_true",
+                                help="export summary of the data")
+    parser.add_argument("--limits", nargs="+", type=int, help="Surprisal brackets for summary- 16 numbers", default=[2, 4, 6, 8, 10, 12, 14, 16, 18,00, 22, 24, 26, 28, 30, 32])
     parser.add_argument("--output",
                         default="/dev/stdout",
                         help="output file name (default: stdout)")

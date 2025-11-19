@@ -3,6 +3,8 @@ import json
 import sys
 from typing import List, Tuple, Dict, Optional
 import math
+from collections import Counter
+import re
 
 from jinja2 import Template
 from torch import torch
@@ -15,7 +17,7 @@ class GlitteredToken:
     """
     HEATMAP_CATEGORIES_NTH = tuple(enumerate([1, 3, 5, 10, 15, 25, 50, 75, 100,
                                           250, 500, 1000, 5000, 10000, 15000, 20000]))
-    HEATMAP_CATEGORIES_UNIFORM = tuple(enumerate([2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]))
+    HEATMAP_CATEGORIES_UNIFORM = tuple(enumerate([2, 4, 6, 8, 10, 12, 14, 16, 18,00, 22, 24, 26, 28, 30, 32]))
     HEATMAP_CATEGORIES_CUSTOM = tuple(enumerate([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 22, 28]))
     SIMPLE_CATEGORIES_NTH = ((0, 1), (3, 10), (7, 100), (10, 1000), (14, 10000))
     # from cold to hot
@@ -62,6 +64,7 @@ class GlitteredToken:
 
     def __get_heatmap_color_index__(self, map_type="nth", color_map=HEATMAP_CATEGORIES_NTH) -> int:
         color_index = 15
+        assert len(color_map) == 16
         for i, category in color_map:
             if (self.neglogprob <= category and map_type == "logprob") or (self.nth <= category and map_type == "nth"):
                 color_index = i
@@ -150,6 +153,19 @@ class GlitteredText:
 
     def to_tex(self):
         return "".join([token.to_tex() for token in self.content])
+
+    def to_summary(self, limits):
+        surprisals = []
+        total = 0
+        for token in self.content:
+            surprisals.append(token.__get_heatmap_color_index__(map_type="logprob", color_map=tuple(enumerate(limits))))
+            total += token.neglogprob
+        nwords = len(self.content)
+        cntr = Counter(surprisals)
+        print(f"Out of {nwords} words")
+        for c, val in sorted(cntr.items()):
+            print(f"Surprisal {c}: {val/nwords:.2f}")
+        print(f"Average neg log prob: {total/nwords:.2f}")
 
     def to_conllu(self, conllu_data):
         output = ""

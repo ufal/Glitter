@@ -9,6 +9,7 @@ from datetime import datetime
 import kenlm
 import nltk
 from nltk.tokenize import word_tokenize
+import re
 
 from lib.context_window import TokenizedMaskedContextWindow, GPTContextWindow
 from lib.glitter_common import *
@@ -16,7 +17,7 @@ from lib.glitter_common import *
 logging.set_verbosity(logging.CRITICAL)
 
 AVAILABLE_MODELS = {}
-PUNCTUATION = (".",",","?","!",":",";","'",'"')
+PUNCTUATION = (".",",","?","!",":",";","'",'"', "(", ")", "[", "]")
 
 
 def register_model(name):
@@ -88,7 +89,8 @@ class GlitterModel:
         return f"{self.name} (context_window_size={self.context_window_size})"
 
     def __text_preprocessing__(self, text: str) -> str:
-        return text
+        # replace all whitespaces with " "
+        return re.sub(r"\s+", " ", text).replace("  "," ")
 
     @staticmethod
     def __glittered_text_postprocessing__(glittered_text: GlitteredText) -> GlitteredText:
@@ -201,6 +203,7 @@ class GlitterGenerativeModel(GlitterModel):
         self.model_path = model_path
         self.model = AutoModelForCausalLM.from_pretrained(model_path).to(self.device).eval()
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+
         self.top_k = self.tokenizer.vocab_size
         if context_window_size is None:
             # set to the maximum possible value (n_positions)
@@ -242,7 +245,7 @@ class GlitterGenerativeModel(GlitterModel):
                 elif not glittered_window and not original_token.startswith(" "):
                     nth = 14
                     prob = 0.0
-                    
+                    print(f"Starting window with {original_token}")
                 glittered_window.append(GlitteredToken(original_token, nth, prob, top_tokens))
         return glittered_window
 

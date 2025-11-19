@@ -118,6 +118,8 @@ if __name__ == "__main__":
     elif args.to_conllu:
         with open(output_file, "w") as file:
             file.write(gt.to_conllu(conllu_data))
+    elif args.to_summary:
+        gt.to_summary(args.limits)
     else:
         print_color_gradient()
         print("")

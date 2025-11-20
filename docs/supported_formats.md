@@ -1,5 +1,5 @@
 ---
-title: Model Interface
+title: Supported formats
 nav_order: 7
 ---
 

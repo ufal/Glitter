@@ -2,6 +2,8 @@ import html
 import json
 from typing import List, Tuple, Dict, Optional
 
+import conllu
+
 from jinja2 import Template
 from torch import torch
 
@@ -83,6 +85,16 @@ class GlitteredToken:
     def to_tex(self) -> str:
         return f"\\hm{'ABCDEFGHIJKLMNOP'[self.__get_heatmap_color_index__()]}{{{self.original_token}}}"
 
+    def to_conllu_token(self) -> conllu.Token:
+        token = conllu.Token()
+        token["form"] = self.original_token
+        token["misc"] = {
+            "PonkApp2:Surprisal": self.surprisal,
+            "PonkApp2:Prob": f"{self.probability:.5f}",
+            "PonkApp2:VocabRank": self.nth
+        }
+        return token
+
     def __str__(self) -> str:
         # rich color output
         return f"[{self.HEATMAP_TERMINAL_COLORS[self.__get_heatmap_color_index__()]}]{self.original_token}[/]"
@@ -133,30 +145,11 @@ class GlitteredText:
     def to_tex(self) -> str:
         return "".join([token.to_tex() for token in self.content])
 
-    def to_conllu(self, conllu_data) -> str:
-        output = ""
-        start_from = 0
-        finish_at = 5
-        errors = 0
-        for sentence in conllu_data:
-            for conllu_token in sentence:
-                glittered_token, pos = self.find_token(conllu_token, start_from, finish_at)
-                if glittered_token:
-                    errors = 0
-                    conllu_token["misc"]["PonkApp2:Surprisal"] = glittered_token.surprisal
-                    conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % glittered_token.probability
-                    conllu_token["misc"]["PonkApp2:VocabRank"] = glittered_token.nth
-                    start_from = pos + 1
-                    finish_at += 1
-                elif errors < 3:
-                    conllu_token["misc"]["PonkApp2:Surprisal"] = 1
-                    conllu_token["misc"]["PonkApp2:Prob"] = "%.5f" % 1.0
-                    conllu_token["misc"]["PonkApp2:VocabRank"] = 1
-                    errors += 1
-                    finish_at += 1
-
-            output += sentence.serialize()
-        return output
+    def to_conllu(self) -> str:
+        conllu_tokens = []
+        for token in self.content:
+            conllu_tokens.append(token.to_conllu_token())
+        return conllu.models.TokenList(conllu_tokens).serialize()
 
     def __str__(self) -> str:
         return "".join([str(token) for token in self.content])

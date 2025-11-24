@@ -1,11 +1,9 @@
 from random import choice
-from typing import Optional
 
 import torch
 from rich import print
 from rich.progress import track
 from transformers import AutoTokenizer, AutoModelForMaskedLM, pipeline, logging, TensorType, AutoModelForCausalLM
-from datetime import datetime
 
 from lib.context_window import TokenizedMaskedContextWindow, GPTContextWindow
 from lib.glitter_common import *
@@ -243,10 +241,7 @@ class GlitterGenerativeModel(GlitterModel):
                 glittered_window.append(GlitteredToken(original_token, nth, prob, top_tokens))
         return glittered_window
 
-
     def glitter_text(self, text: str, top_k: int = None, silent=False) -> GlitteredText:
-        start = datetime.now()
-        print(f"Started {start}")
         text = self.__text_preprocessing__(text)
         if top_k is None:
             top_k = self.top_k
@@ -268,8 +263,4 @@ class GlitterGenerativeModel(GlitterModel):
                                                    top_k=top_k)
             for token in glittered_window:
                 gt.append(token)
-
-        end = datetime.now()
-        print(f"Finished {end}")
-        print(f"Glittering took {end-start} seconds.")
         return self.__glittered_text_postprocessing__(gt)

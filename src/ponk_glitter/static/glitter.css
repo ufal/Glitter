@@ -90,6 +90,10 @@
 	position: relative;
 }
 
+.gt-probability{
+	display: block;
+}
+
 .gt-context {
 	position: absolute;
 	color: black;

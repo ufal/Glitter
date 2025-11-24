@@ -105,13 +105,13 @@ class GlitteredText:
     def get_content(self) -> List[GlitteredToken]:
         return self.content
 
-    def find_token(self, conllu_token,  start_from, finish_at):
+    def find_token(self, conllu_token, start_from, finish_at):
         start_from = min(start_from, len(self.content) - 1)
         finish_at = min(finish_at, len(self.content) - 1)
         for i, tok in enumerate(self.content[start_from:finish_at]):
             if tok.original_token.strip() == conllu_token["form"].strip():
                 return tok, i + start_from
-        
+
         print(f"WARNING: Token '{conllu_token['form'].strip()}' not found in Glittered text, moving to next token")
         return None, start_from
 
@@ -130,10 +130,10 @@ class GlitteredText:
             "used_models": self.used_models
         }
 
-    def to_tex(self):
+    def to_tex(self) -> str:
         return "".join([token.to_tex() for token in self.content])
 
-    def to_conllu(self, conllu_data):
+    def to_conllu(self, conllu_data) -> str:
         output = ""
         start_from = 0
         finish_at = 5
@@ -157,15 +157,14 @@ class GlitteredText:
 
             output += sentence.serialize()
         return output
-    
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "".join([str(token) for token in self.content])
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.content)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> GlitteredToken:
         return self.content[item]
 
     def __iter__(self):
@@ -174,7 +173,7 @@ class GlitteredText:
     def __reversed__(self):
         return reversed(self.content)
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         return item in self.content
 
 

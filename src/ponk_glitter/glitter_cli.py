@@ -99,7 +99,7 @@ if __name__ == "__main__":
         exit(1)
     m = AVAILABLE_MODELS[args.model]()
 
-    if is_conllu_file(input_file) or args.to_conllu:
+    if is_conllu_file(input_file):
         conllu_data, text = read_conllu_file(input_file)
     else:
         text = read_file(input_file)
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         print_table_of_glittered_text(gt)
     elif args.to_conllu:
         with open(output_file, "w") as file:
-            file.write(gt.to_conllu(conllu_data))
+            file.write(gt.to_conllu())
     else:
         print_color_gradient()
         print("")

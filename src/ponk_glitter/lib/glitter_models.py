@@ -32,12 +32,20 @@ def get_registered_models():
     return AVAILABLE_MODELS
 
 
-def load_models(verbose=False):
+def load_models(verbose: Optional[bool] = False,
+                selected_models: Optional[List[str]] = None):
     get_registered_models()
     models = dict()
     if verbose:
         print(" * Models loaded:")
-    for model_name in AVAILABLE_MODELS.keys():
+
+    # Select all models if no model is selected
+    if not selected_models:
+        selected_models = AVAILABLE_MODELS.keys()
+
+    for model_name in selected_models:
+        if model_name not in AVAILABLE_MODELS:
+            print(f"Model {model_name} is not available")
         try:
             model = AVAILABLE_MODELS[model_name]()
             models[model.name] = model
@@ -212,7 +220,7 @@ class GlitterGenerativeModel(GlitterModel):
         with torch.no_grad():  # Disable gradient calculation for faster inference
             outputs = self.model(**tokenized_text)  # this is 2D
             glittered_window = []
-            for i in reversed(range(0, n_last_related_tokens-1)):
+            for i in reversed(range(0, n_last_related_tokens - 1)):
                 if -i - 2 <= -self.context_window_size:
                     continue
                 logits = outputs.logits[-i - 2, :].detach().cpu()
@@ -222,22 +230,24 @@ class GlitterGenerativeModel(GlitterModel):
                 prob = probs[original_token_id].item()
                 nth = get_rank_from_probability(probs, prob)
                 top_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer, 5)
-                next_token_id = tokenized_text["input_ids"][-i].item() 
+                next_token_id = tokenized_text["input_ids"][-i].item()
                 next_token = self.tokenizer.decode(next_token_id)
-                if next_token.isdigit() and original_token in [".",","] and glittered_window[-1].original_token.isdigit():
+                if next_token.isdigit() and original_token in [".", ","] and glittered_window[
+                    -1].original_token.isdigit():
                     decimal_point = True
                 else:
                     decimal_point = False
-                if  glittered_window and (not (original_token.startswith(" ") or original_token.startswith(PUNCTUATION)) or decimal_point):
+                if glittered_window and (not (
+                        original_token.startswith(" ") or original_token.startswith(PUNCTUATION)) or decimal_point):
                     last_token = glittered_window.pop()
-                    prob = last_token.probability * prob 
-                    original_token = last_token.original_token + original_token 
+                    prob = last_token.probability * prob
+                    original_token = last_token.original_token + original_token
                     nth = get_rank_from_probability(probs, prob)
                     top_tokens = last_token.top_k_tokens
                 elif not glittered_window and not original_token.startswith(" ") and not glittered_window:
                     nth = 1
                     prob = 1.0
-                    
+
                 glittered_window.append(GlitteredToken(original_token, nth, prob, top_tokens))
         return glittered_window
 

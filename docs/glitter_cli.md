@@ -14,13 +14,14 @@ glitter_cli.py [-h] [--to-json | --to-html | --to-dict | --to-table | --to-tex] 
 ```
 
 ### Options
-- `-h`, `--help`     - show help massega
+- `-h`, `--help`     - show help massage and exit
 - Export formats:
     - `--to-json`    - export data to JSON
     - `--to-html`    - export data to HTML
     - `--to-dict`    - export data to python dictionary format
     - `--to-table`   - export data to table containing for each token, its probability, order and top 10 candidates
     - `--to-tex`     - export data as TeX macros
+    - `--to-conllu`  - export data in conllu format for PONK integration
     - Not choosing any export format will result in printing colored glittered text
 - `--output OUTPUT`  - output file name (default: `stdout`)
 - `--input INPUT`    - input file name (default: `stdin`)

@@ -87,7 +87,7 @@ class GlitteredToken:
 
     def to_conllu_token(self) -> conllu.Token:
         token = conllu.Token()
-        token["form"] = self.original_token
+        token["form"] = repr(self.original_token)
         token["misc"] = {
             "PonkApp2:Surprisal": self.surprisal,
             "PonkApp2:Prob": f"{self.probability:.5f}",

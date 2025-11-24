@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import os
-import sys
+from typing import Any
 
+from conllu import parse_incr
 from rich import print
 from rich.console import Console
 from rich.table import Table
-from conllu import parse_incr
 
 from lib.arguments import get_cli_args
 from lib.glitter_common import GlitteredText, GlitteredToken
@@ -44,34 +43,44 @@ def print_table_of_glittered_text(gt: GlitteredText, title="") -> None:
     console.print(table)
 
 
-def print_color_gradient():
+def print_color_gradient() -> None:
     print("Smallest entropy", end=" ")
     for c in GlitteredToken.HEATMAP_TERMINAL_COLORS:
         print(f"[{c}]███[/]", end="")
     print(" Highest entropy")
 
+
 ########################################################################################
 
-def cmd_list_models():
+def cmd_list_models() -> None:
     print("Available models:")
     for model in AVAILABLE_MODELS:
         print(f"  {model}")
     exit(0)
 
 
-def is_conllu_file(filename):
+def is_conllu_file(filename: str) -> bool:
     return filename.lower().endswith(".conllu") or filename.lower().endswith(".conll")
 
 
-def read_conllu(filename):
-    text = ""
-    with open(input_file, "r") as file:
-        data = parse_incr(file)
+def read_conllu_file(file_name: str) -> tuple[Any, str]:
+    plain_text = ""
+    with open(file_name, "r") as f:
+        data = parse_incr(f)
         for sentence in data:
             if "text" in sentence.metadata:
-               text += sentence.metadata["text"]
-               text += " "
-    return data, text
+                plain_text += sentence.metadata["text"]
+                plain_text += " "
+    return data, plain_text
+
+
+def read_file(file_name: str) -> str:
+    try:
+        with open(file_name, "r") as f:
+            return f.read()
+    except Exception as e:
+        print(f"Error reading file {file_name}: {e}")
+        exit(1)
 
 
 if __name__ == "__main__":
@@ -85,18 +94,16 @@ if __name__ == "__main__":
     output_file = args.output if args.output else "/dev/stdout"
     args.model = args.model.lower()
 
-
     if args.model not in AVAILABLE_MODELS:
         print("Model not found")
         exit(1)
     m = AVAILABLE_MODELS[args.model]()
 
     if is_conllu_file(input_file) or args.to_conllu:
-        conllu_data, text = read_conllu(input_file)
+        conllu_data, text = read_conllu_file(input_file)
     else:
-        with open(input_file, "r") as file:
-            text = file.read()
-    
+        text = read_file(input_file)
+
     gt = m.glitter_text(text)
 
     if args.to_json:

@@ -13,7 +13,7 @@ from lib.glitter_common import *
 logging.set_verbosity(logging.CRITICAL)
 
 AVAILABLE_MODELS = {}
-PUNCTUATION = (".",",","?","!",":",";","'",'"')
+PUNCTUATION = (".", ",", "?", "!", ":", ";", "'", '"')
 
 
 def register_model(name):

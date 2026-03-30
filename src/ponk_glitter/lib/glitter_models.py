@@ -213,24 +213,26 @@ class GlitterGenerativeModel(GlitterModel):
                        tokenized_text: {str: torch.Tensor},
                        n_last_related_tokens: int,
                        top_k: int) -> List[GlitteredToken]:
-        print(f"Window length: {len(tokenized_text['input_ids'])}")
+        print(f"Window length: {tokenized_text['input_ids'].shape[-1]}")
         # Move to GPU if available
         tokenized_text = {k: v.to(self.device) for k, v in tokenized_text.items()}
         # Forward pass through the model to get logits
         with torch.no_grad():  # Disable gradient calculation for faster inference
-            outputs = self.model(**tokenized_text)  # this is 2D
+            outputs = self.model(**tokenized_text)
+            logits_all = outputs.logits[0]
+            input_ids = tokenized_text["input_ids"][0]
             glittered_window = []
             for i in reversed(range(0, n_last_related_tokens - 1)):
                 if -i - 2 <= -self.context_window_size:
                     continue
-                logits = outputs.logits[-i - 2, :].detach().cpu()
+                logits = logits_all[-i - 2, :].detach().cpu()
                 probs = torch.nn.functional.softmax(logits, dim=-1)
-                original_token_id = tokenized_text["input_ids"][-(i + 1)].item()
+                original_token_id = input_ids[-(i + 1)].item()
                 original_token = self.tokenizer.decode(original_token_id)
                 prob = probs[original_token_id].item()
                 nth = get_rank_from_probability(probs, prob)
                 top_tokens = get_tokens_sorted_by_probability(probs, self.tokenizer, 5)
-                next_token_id = tokenized_text["input_ids"][-i].item()
+                next_token_id = input_ids[-i].item()
                 next_token = self.tokenizer.decode(next_token_id)
                 if next_token.isdigit() and original_token in [".", ","] and glittered_window[
                     -1].original_token.isdigit():

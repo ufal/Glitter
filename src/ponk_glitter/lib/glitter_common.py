@@ -181,10 +181,14 @@ def convert_list_of_tokens_to_tensor(tokenized_text: torch.Tensor) -> Dict[str, 
     """
     Convert a list of tokens to a Pytorch tensor
     """
-    if type(tokenized_text) is torch.Tensor:
-        return {"input_ids": tokenized_text, "attention_mask": torch.ones(len(tokenized_text))}
-    print("Warning: convert list received list type (not torch.Tensor), this is inefficient")
-    return {"input_ids": torch.tensor(tokenized_text), "attention_mask": torch.ones(len(tokenized_text))}
+    if type(tokenized_text) is not torch.Tensor:
+        print("Warning: convert list received list type"
+              " (not torch.Tensor), this is inefficient")
+        tokenized_text = torch.tensor(tokenized_text)
+    return {
+        "input_ids": tokenized_text.unsqueeze(0),
+        "attention_mask": torch.ones(1, len(tokenized_text))
+    }
 
 
 def get_rank_from_probability(probs: torch.Tensor, prob: float) -> int:

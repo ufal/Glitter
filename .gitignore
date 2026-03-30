@@ -2,6 +2,7 @@ __pycache__
 client/src/.cache-loader
 node_modules
 venv
+.venv
 .idea
 src/ponk_glitter/models/**/
 tmp/

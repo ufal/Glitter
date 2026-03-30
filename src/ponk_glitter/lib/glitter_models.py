@@ -206,8 +206,15 @@ class GlitterGenerativeModel(GlitterModel):
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.top_k = self.tokenizer.vocab_size
         if context_window_size is None:
-            # set to the maximum possible value (n_positions)
-            self.context_window_size = self.model.config.n_positions
+            self.context_window_size = getattr(
+                self.model.config,
+                "n_positions",
+                getattr(
+                    self.model.config,
+                    "max_position_embeddings",
+                    1024,
+                ),
+            )
 
     def glitter_window(self,
                        tokenized_text: {str: torch.Tensor},
